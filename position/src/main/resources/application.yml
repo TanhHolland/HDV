@@ -1,0 +1,34 @@
+server:
+  port: 8003
+spring:
+  application:
+    name: qbike-position
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/qbike?useUnicode=true&characterEncoding=utf8}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:170903}
+    tomcat:
+      max-active: 3
+      min-idle: 1
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    timeout: 2000ms
+    database: 2
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: 1000ms
+        max-idle: 8
+        min-idle: 0
+logging:
+  level:
+    root: INFO
+    org.hibernate: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicExtractor: TRACE

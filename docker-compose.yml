@@ -1,16 +1,78 @@
 version: '3.8'
+
 services:
-  service-a:
-    build: ./services/service-a
-    ports:
-      - "5001:5000"
+#  mysql:
+#    image: mysql:8.0
+#    container_name: booking-mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: 170903
+#      MYSQL_DATABASE: qbike
+#    ports:
+#      - "3307:3306"
+#    volumes:
+#      - mysql-data:/var/lib/mysql
+#    networks:
+#      - booking-network
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p170903"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
 
-  service-b:
-    build: ./services/service-b
+  redis:
+    image: redis:latest
+    container_name: booking-redis
     ports:
-      - "5002:5000"
+      - "6379:6379"
+    networks:
+      - booking-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  gateway:
-    build: ./gateway
+  uc-service:
+    build:
+      context: ./uc
+    container_name: booking-uc
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
     ports:
-      - "8080:8000"
+      - "8000:8000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/qbike?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+    networks:
+      - booking-network
+
+  position-service:
+    build:
+      context: ./position
+    container_name: booking-position
+    depends_on:
+#      mysql:
+#        condition: service_healthy
+      redis:
+        condition: service_healthy
+      uc-service:
+        condition: service_started
+    ports:
+      - "8003:8003"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/qbike?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      BOOKING_UC_URL: http://uc-service:8000
+    networks:
+      - booking-network
+
+networks:
+  booking-network:
+    driver: bridge
+
+#volumes:
+#  mysql-data:
