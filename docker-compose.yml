@@ -34,7 +34,7 @@ services:
 
   uc-service:
     build:
-      context: ./uc
+      context: ./services/uc
     container_name: booking-uc
 #    depends_on:
 #      mysql:
@@ -50,7 +50,7 @@ services:
 
   position-service:
     build:
-      context: ./position
+      context: ./services/position
     container_name: booking-position
     depends_on:
 #      mysql:
