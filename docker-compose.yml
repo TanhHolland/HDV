@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Database
   mysql:
     image: mysql:8.0
     container_name: qbike-mysql
@@ -14,13 +13,7 @@ services:
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - booking-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p170903"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # Redis
   redis:
     image: redis:7-alpine
     container_name: qbike-redis
@@ -28,13 +21,7 @@ services:
       - "6379:6379"
     networks:
       - booking-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management
     container_name: qbike-rabbitmq
@@ -46,40 +33,25 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     networks:
       - booking-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # Eureka Service Discovery
   eureka:
     build:
-      context: ./eureka/eureka
+      context: ./eureka
       dockerfile: Dockerfile
     container_name: qbike-eureka
     ports:
       - "8761:8761"
     networks:
       - booking-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
 
-  # UC Service
   uc-service:
     build:
       context: ./services/uc
       dockerfile: Dockerfile
     container_name: uc-service
     depends_on:
-      mysql:
-        condition: service_healthy
-      eureka:
-        condition: service_healthy
+      - mysql
+      - eureka
     ports:
       - "8000:8000"
     environment:
@@ -90,23 +62,17 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
-    restart: unless-stopped
 
-  # Position Service
   position-service:
     build:
       context: ./services/position
       dockerfile: Dockerfile
     container_name: position-service
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      eureka:
-        condition: service_healthy
-      uc-service:
-        condition: service_started
+      - mysql
+      - redis
+      - eureka
+      - uc-service
     ports:
       - "8003:8003"
     environment:
@@ -119,23 +85,17 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
-    restart: unless-stopped
 
-  # Intention Service
   intention-service:
     build:
       context: ./services/intention-service
       dockerfile: Dockerfile
     container_name: intention-service
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      eureka:
-        condition: service_healthy
+      - mysql
+      - redis
+      - rabbitmq
+      - eureka
     ports:
       - "8001:8001"
     environment:
@@ -149,23 +109,18 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       - booking-network
-    restart: unless-stopped
 
-  # Order Service
   order-service:
     build:
       context: ./services/order
       dockerfile: Dockerfile
     container_name: order-service
     depends_on:
-      mysql:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      eureka:
-        condition: service_healthy
+      - mysql
+      - rabbitmq
+      - eureka
     ports:
-      - "8080:8080"
+      - "8002:8002"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_order?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
@@ -175,25 +130,18 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
-    restart: unless-stopped
 
-  # API Gateway
   gateway:
     build:
       context: ./gateway
       dockerfile: Dockerfile
     container_name: gateway
     depends_on:
-      eureka:
-        condition: service_healthy
-      uc-service:
-        condition: service_started
-      position-service:
-        condition: service_started
-      intention-service:
-        condition: service_started
-      order-service:
-        condition: service_started
+      - eureka
+      - uc-service
+      - position-service
+      - intention-service
+      - order-service
     ports:
       - "8800:8800"
     environment:
@@ -201,7 +149,6 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
-    restart: unless-stopped
 
 networks:
   booking-network:

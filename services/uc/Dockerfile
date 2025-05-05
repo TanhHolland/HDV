@@ -1,6 +1,12 @@
 # services/uc/Dockerfile
+FROM maven:3.8.4-openjdk-17 AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY target/uc-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/uc-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8000
 ENTRYPOINT ["java", "-jar", "app.jar"]
