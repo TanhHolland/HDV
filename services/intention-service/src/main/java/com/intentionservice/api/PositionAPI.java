@@ -2,8 +2,6 @@ package com.intentionservice.api;
 
 import com.intentionservice.domain.vo.DriverStatusVo;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -15,23 +13,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
-public class PositionAPI {
+public class PositionAPI
+{
     @Autowired
     private RestTemplate restTemplate;
 
     @CircuitBreaker(name = "positionService", fallbackMethod = "defaultMatch")
-    public Collection<DriverStatusVo> match(double longitude, double latitude) {
-        ResponseEntity<Collection<DriverStatusVo>> matchReponse =
-                restTemplate.exchange(
-                        String.format("http://qbike-trip/trips/match?longitude=%s&latitude=%s", longitude, latitude),
+    public Collection<DriverStatusVo> match(double longitude, double latitude)
+    {
+        ResponseEntity<Collection<DriverStatusVo>> matchReponse = restTemplate.exchange(
+                        "http://qbike-trip/trips/match?longitude=" + longitude + "&latitude=" + latitude,
                         HttpMethod.GET, null,
                         new ParameterizedTypeReference<Collection<DriverStatusVo>>() {
-                        }
-                );
+                        });
         return matchReponse.getBody();
     }
 
-    public Collection<DriverStatusVo> defaultMatch(double longitude, double latitude) {
+    public Collection<DriverStatusVo> defaultMatch(double longitude, double latitude)
+    {
         return new ArrayList<>();
     }
 }

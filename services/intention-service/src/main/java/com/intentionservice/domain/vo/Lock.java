@@ -7,13 +7,15 @@ import java.util.Date;
 
 @Data
 @ToString
-public class Lock implements Comparable<Lock> {
+public class Lock implements Comparable<Lock>
+{
     private final String name;
     private final String value;
     private final Date expires;
 
     @Override
-    public int compareTo(Lock other) {
+    public int compareTo(Lock other)
+    {
         return expires.compareTo(other.expires);
     }
 }

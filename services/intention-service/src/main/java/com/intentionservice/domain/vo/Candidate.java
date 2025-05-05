@@ -9,7 +9,8 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "intention_candidate")
-public class Candidate {
+public class Candidate
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int cid;

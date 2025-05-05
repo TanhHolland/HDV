@@ -1,6 +1,7 @@
 package com.intentionservice.domain.vo;
 
-public enum IntentionStatus {
+public enum IntentionStatus
+{
     Inited,
     Unconfirmed,
     Confirmed,

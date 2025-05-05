@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import static java.util.stream.Collectors.toList;
 
 @Service
-public class IntentionService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IntentionService.class);
+public class IntentionService
+{
     @Autowired
     IntentionRepository intentionRepository;
     @Autowired
@@ -49,7 +49,8 @@ public class IntentionService {
 
     private DelayQueue<IntentionTask> intentions = new DelayQueue<>();
 
-    private static Candidate fromDriverStatus(DriverStatusVo driverStatusVo, Intention intention) {
+    private static Candidate fromDriverStatus(DriverStatusVo driverStatusVo, Intention intention)
+    {
         Candidate candidate = new Candidate();
         candidate.setDriverId(driverStatusVo.getDId());
         candidate.setCreated(new Date());
@@ -63,7 +64,8 @@ public class IntentionService {
 
     @Transactional
     public void placeIntention(int userId, Double startLongitude, Double startLatitude,
-                               Double destLongitude, Double destLatitude) {
+                               Double destLongitude, Double destLatitude)
+    {
         Customer customer = userApi.findById(userId);
         Intention intention = new Intention()
                 .setStartLongitude(startLongitude)
@@ -79,7 +81,8 @@ public class IntentionService {
     }
 
     @Transactional
-    public void sendNotification(Collection<DriverStatusVo> result, Intention intention) {
+    public void sendNotification(Collection<DriverStatusVo> result, Intention intention)
+    {
         result.stream()
                 .map(vo -> fromDriverStatus(vo, intention))
                 .forEach(candidate -> candidateRepository.save(candidate));
@@ -88,15 +91,18 @@ public class IntentionService {
     }
 
     @Transactional
-    public boolean confirmIntention(int driverId, int intentionId) throws Exception {
+    public boolean confirmIntention(int driverId, int intentionId) throws Exception
+    {
         String lockName = "intention" + intentionId;
         Lock lock = null;
-        try {
+        try
+        {
             lock = lockService.create(lockName);
             Intention intention = intentionRepository.findById(intentionId).orElse(null);
             DriverVo driverVo = userApi.findDriverById(driverId);
             int ret = intention.confirmIntention(driverVo);
-            if (ret == 0) {
+            if (ret == 0)
+            {
                 intentionRepository.save(intention);
                 IntentionVo intentionVo = new IntentionVo().setIntentionId(intention.getMid())
                         .setCustomerId(intention.getCustomer().getCustomerId())
@@ -105,64 +111,88 @@ public class IntentionService {
                         .setStartLong(intention.getStartLongitude())
                         .setStartLat(intention.getStartLatitude())
                         .setDriverId(intention.getSelectedDriver().getId());
-                try {
+                try
+                {
                     rabbitTemplate.convertAndSend("intention", objectMapper.writeValueAsString(intentionVo));
-                } catch (JsonProcessingException e) {
-                    LOGGER.error("convert message fail" + intentionVo, e);
+                }
+                catch (JsonProcessingException e)
+                {
+                    System.out.println("IntentionService: Error");
                 }
                 return true;
-            } else {
+            }
+            else
+            {
                 return false;
             }
-        } catch (Exception e) {
-            LOGGER.error("try lock error ", e);
+        }
+        catch (Exception e)
+        {
+            System.out.println("IntentionService: Error");
             return false;
-        } finally {
-            if (lock != null) {
+        }
+        finally
+        {
+            if (lock != null)
+            {
                 lockService.release(lockName, lock.getValue());
             }
         }
     }
 
     @Transactional
-    public void matchFail(Intention intention) {
+    public void matchFail(Intention intention)
+    {
         intention.fail();
         intentionRepository.save(intention);
     }
 
     @Async
-    public void handleTask() {
-        for (; ; ) {
-            try {
+    public void handleTask()
+    {
+        for (; ; )
+        {
+            try
+            {
                 IntentionTask task = intentions.take();
-                if (task != null) {
-                    LOGGER.info("got a task {}", task.getIntenionId());
+                if (task != null)
+                {
                     Intention intention = intentionRepository.findById(task.getIntenionId()).orElse(null);
-                    if (intention.canMatchDriver()) {
+                    if (intention.canMatchDriver())
+                    {
                         Collection<DriverStatusVo> result = positionApi.match(intention.getStartLongitude(), intention.getStartLatitude());
-                        if (result.size() > 0) {
+                        if (result.size() > 0)
+                        {
                             List<String> names = result.stream().map(s -> s.getDriver().getUserName()).collect(toList());
                             sendNotification(result, intention);
-                        } else {
+                        }
+                        else
+                        {
                             retryMatch(task, intention);
                         }
-                    } else {
                     }
-
+                    else
+                    {
+                    }
                 }
-            } catch (Exception e) {
-                LOGGER.error("error happened", e);
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
             }
         }
     }
 
-    private boolean retryMatch(IntentionTask task, Intention intention) {
+    private boolean retryMatch(IntentionTask task, Intention intention)
+    {
         int times = task.getRepeatTimes() + 1;
-        if (times > 5) {
+        if (times > 5)
+        {
             matchFail(intention);
             return true;
         }
-        IntentionTask newTask = new IntentionTask(intention.getMid(), 2 * times, TimeUnit.SECONDS, times);
+        IntentionTask newTask = new IntentionTask(intention.getMid(), 2L * times,
+                TimeUnit.SECONDS, times);
         this.intentions.put(newTask);
         return false;
     }

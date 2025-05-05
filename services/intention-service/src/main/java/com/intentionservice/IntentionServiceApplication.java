@@ -10,7 +10,8 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class IntentionServiceApplication {
+public class IntentionServiceApplication
+{
 	public static void main(String[] args) {
 		SpringApplication.run(IntentionServiceApplication.class, args);
 	}

@@ -6,7 +6,8 @@ import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class DriverStatusVo {
+public class DriverStatusVo
+{
     private int dId;
     private DriverVo driver;
     private Double currentLongitude;

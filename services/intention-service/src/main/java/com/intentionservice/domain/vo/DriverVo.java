@@ -9,7 +9,8 @@ import jakarta.persistence.Embeddable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Embeddable
-public class DriverVo {
+public class DriverVo
+{
     @Column(nullable = true)
     private int id;
     @Column(nullable = true)
