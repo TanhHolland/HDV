@@ -4,15 +4,15 @@ spring:
     gateway:
       routes:
         - id: uc-service
-          uri: lb://QBIKE-UC
+          uri: lb://UC-SERVICE
           predicates:
             - Path=/api/users/**
         - id: position-service
-          uri: lb://QBIKE-POSITION
+          uri: lb://POSITION-SERVICE
           predicates:
             - Path=/api/position/**
         - id: order-service
-          uri: lb://ORDER
+          uri: lb://ORDER-SERVICE
           predicates:
             - Path=/api/order/**
         - id: intention-service

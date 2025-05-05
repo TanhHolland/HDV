@@ -74,7 +74,7 @@ services:
     build:
       context: ./services/uc
       dockerfile: Dockerfile
-    container_name: qbike-uc
+    container_name: uc-service
     depends_on:
       mysql:
         condition: service_healthy
@@ -97,7 +97,7 @@ services:
     build:
       context: ./services/position
       dockerfile: Dockerfile
-    container_name: qbike-position
+    container_name: position-service
     depends_on:
       mysql:
         condition: service_healthy
@@ -126,7 +126,7 @@ services:
     build:
       context: ./services/intention-service
       dockerfile: Dockerfile
-    container_name: qbike-intention
+    container_name: intention-service
     depends_on:
       mysql:
         condition: service_healthy
@@ -156,7 +156,7 @@ services:
     build:
       context: ./services/order
       dockerfile: Dockerfile
-    container_name: qbike-order
+    container_name: order-service
     depends_on:
       mysql:
         condition: service_healthy
@@ -182,7 +182,7 @@ services:
     build:
       context: ./gateway
       dockerfile: Dockerfile
-    container_name: qbike-gateway
+    container_name: gateway
     depends_on:
       eureka:
         condition: service_healthy
