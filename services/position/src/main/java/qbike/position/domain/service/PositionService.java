@@ -7,7 +7,9 @@ import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import org.slf4j.Logger;
 import qbike.position.domain.core.Status;
 import qbike.position.domain.core.root.DriverStatus;
@@ -74,7 +76,7 @@ public class PositionService {
         }
 
         //Cap nhat vao Redis
-        redisTemplate.opsForGeo().geoAdd("Driver", new Point(longitude,latitude), String.valueOf(driverId));
+        redisTemplate.opsForGeo().add("Driver", new Point(longitude,latitude), String.valueOf(driverId));
         LOGGER.info("Da cap nhat vi tri moi: " + driverStatus);
     }
 
@@ -82,7 +84,7 @@ public class PositionService {
         Circle circle = new Circle(new Point(longtitude,latitude),
                 new Distance(500, RedisGeoCommands.DistanceUnit.METERS));
         GeoResults<RedisGeoCommands.GeoLocation<String>> result =
-                redisTemplate.opsForGeo().geoRadius("Driver", circle);
+                redisTemplate.opsForGeo().radius("Driver", circle);
 
         if(result.getContent().size() == 0){
             LOGGER.info("Khong tim thay tai xe");

@@ -2,7 +2,7 @@ package qbike.position.domain.core.vo;
 
 import lombok.Data;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 @Data
