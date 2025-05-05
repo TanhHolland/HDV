@@ -1,0 +1,5 @@
+-- scripts/init-db.sql
+CREATE DATABASE IF NOT EXISTS qbike_uc;
+CREATE DATABASE IF NOT EXISTS qbike_position;
+CREATE DATABASE IF NOT EXISTS qbike_intention;
+CREATE DATABASE IF NOT EXISTS qbike_order;
