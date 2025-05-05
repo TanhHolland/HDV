@@ -55,7 +55,7 @@ services:
   # Eureka Service Discovery
   eureka:
     build:
-      context: ./eureka
+      context: ./eureka/eureka
       dockerfile: Dockerfile
     container_name: qbike-eureka
     ports:
