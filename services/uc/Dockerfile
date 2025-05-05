@@ -1,6 +1,9 @@
 # services/uc/Dockerfile
 FROM maven:3.8.4-openjdk-17 AS builder
 WORKDIR /app
+# Set timezone to fix date issue
+ENV TZ=Asia/Ho_Chi_Minh
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
