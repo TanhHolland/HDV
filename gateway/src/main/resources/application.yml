@@ -1,33 +1,21 @@
+# gateway/src/main/resources/application.yml
 spring:
-  application:
-    name: gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
       routes:
-        - id: userservice
-          uri: lb://USERSERVICE
+        - id: uc-service
+          uri: lb://QBIKE-UC
           predicates:
             - Path=/api/users/**
-        - id: notificationservice
-          uri: lb://NOTIFICATIONSERVICE
+        - id: position-service
+          uri: lb://QBIKE-POSITION
           predicates:
-            - Path=/api/notifications/**
-
-server:
-  port: 8800
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
+            - Path=/api/position/**
+        - id: order-service
+          uri: lb://ORDER
+          predicates:
+            - Path=/api/order/**
+        - id: intention-service
+          uri: lb://INTENTION-SERVICE
+          predicates:
+            - Path=/api/intentions/**

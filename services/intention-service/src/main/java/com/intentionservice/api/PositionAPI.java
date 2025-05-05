@@ -21,12 +21,12 @@ public class PositionAPI
     @CircuitBreaker(name = "positionService", fallbackMethod = "defaultMatch")
     public Collection<DriverStatusVo> match(double longitude, double latitude)
     {
-        ResponseEntity<Collection<DriverStatusVo>> matchReponse = restTemplate.exchange(
-                        "http://qbike-trip/trips/match?longitude=" + longitude + "&latitude=" + latitude,
-                        HttpMethod.GET, null,
-                        new ParameterizedTypeReference<Collection<DriverStatusVo>>() {
-                        });
-        return matchReponse.getBody();
+        ResponseEntity<Collection<DriverStatusVo>> matchResponse = restTemplate.exchange(
+                "http://QBIKE-POSITION/api/position/match?longitude=" + longitude + "&latitude=" + latitude,
+                HttpMethod.GET, null,
+                new ParameterizedTypeReference<Collection<DriverStatusVo>>() {
+                });
+        return matchResponse.getBody();
     }
 
     public Collection<DriverStatusVo> defaultMatch(double longitude, double latitude)
