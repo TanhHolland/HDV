@@ -1,27 +1,29 @@
 version: '3.8'
 
 services:
-#  mysql:
-#    image: mysql:8.0
-#    container_name: booking-mysql
-#    environment:
-#      MYSQL_ROOT_PASSWORD: 170903
-#      MYSQL_DATABASE: qbike
-#    ports:
-#      - "3307:3306"
-#    volumes:
-#      - mysql-data:/var/lib/mysql
-#    networks:
-#      - booking-network
-#    healthcheck:
-#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p170903"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  # Database
+  mysql:
+    image: mysql:8.0
+    container_name: qbike-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 170903
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - booking-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p170903"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Redis
   redis:
-    image: redis:latest
-    container_name: booking-redis
+    image: redis:7-alpine
+    container_name: qbike-redis
     ports:
       - "6379:6379"
     networks:
@@ -32,47 +34,178 @@ services:
       timeout: 5s
       retries: 5
 
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: qbike-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - booking-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Eureka Service Discovery
+  eureka:
+    build:
+      context: ./eureka/eureka
+      dockerfile: Dockerfile
+    container_name: qbike-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - booking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # UC Service
   uc-service:
     build:
       context: ./services/uc
-    container_name: booking-uc
-#    depends_on:
-#      mysql:
-#        condition: service_healthy
+      dockerfile: Dockerfile
+    container_name: qbike-uc
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/qbike?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_uc?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
+    restart: unless-stopped
 
+  # Position Service
   position-service:
     build:
       context: ./services/position
-    container_name: booking-position
+      dockerfile: Dockerfile
+    container_name: qbike-position
     depends_on:
-#      mysql:
-#        condition: service_healthy
+      mysql:
+        condition: service_healthy
       redis:
+        condition: service_healthy
+      eureka:
         condition: service_healthy
       uc-service:
         condition: service_started
     ports:
       - "8003:8003"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/qbike?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_position?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       SPRING_REDIS_HOST: redis
       BOOKING_UC_URL: http://uc-service:8000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
       - booking-network
+    restart: unless-stopped
+
+  # Intention Service
+  intention-service:
+    build:
+      context: ./services/intention-service
+      dockerfile: Dockerfile
+    container_name: qbike-intention
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_intention?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - booking-network
+    restart: unless-stopped
+
+  # Order Service
+  order-service:
+    build:
+      context: ./services/order
+      dockerfile: Dockerfile
+    container_name: qbike-order
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_order?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+    networks:
+      - booking-network
+    restart: unless-stopped
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: qbike-gateway
+    depends_on:
+      eureka:
+        condition: service_healthy
+      uc-service:
+        condition: service_started
+      position-service:
+        condition: service_started
+      intention-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+    ports:
+      - "8800:8800"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+    networks:
+      - booking-network
+    restart: unless-stopped
 
 networks:
   booking-network:
     driver: bridge
 
-#volumes:
-#  mysql-data:
+volumes:
+  mysql-data:
