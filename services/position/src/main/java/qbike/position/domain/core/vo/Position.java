@@ -5,11 +5,11 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import qbike.position.domain.core.Status;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.Date;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 
 @Data
 @ToString

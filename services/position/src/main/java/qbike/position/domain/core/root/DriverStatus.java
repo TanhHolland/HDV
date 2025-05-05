@@ -1,13 +1,13 @@
 package qbike.position.domain.core.root;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import qbike.position.domain.core.Status;
 import qbike.position.domain.core.vo.Driver;
 
-import javax.persistence.*;
 import java.util.Date;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 
 @Data
 @Entity

@@ -3,10 +3,9 @@ package qbike.uc.domain.root;
 import lombok.Data;
 import qbike.uc.domain.Type;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import jakarta.persistence.*;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 
 @Data
 @Entity

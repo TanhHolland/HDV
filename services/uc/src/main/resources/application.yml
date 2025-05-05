@@ -16,9 +16,21 @@ spring:
     tomcat:
       max-active: 5
       min-idle: 1
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 logging:
   level:
     root: INFO
     org.hibernate: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
