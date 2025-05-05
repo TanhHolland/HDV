@@ -6,7 +6,8 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 @Data
-public class Customer {
+public class Customer
+{
     private int customerId;
     private String customerName;
     private String customerMobile;

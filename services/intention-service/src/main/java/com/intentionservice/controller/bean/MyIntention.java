@@ -3,7 +3,8 @@ package com.intentionservice.controller.bean;
 import lombok.Data;
 
 @Data
-public class MyIntention {
+public class MyIntention
+{
     private int userId;
     private Double startLongitude;
     private Double startLatitude;
