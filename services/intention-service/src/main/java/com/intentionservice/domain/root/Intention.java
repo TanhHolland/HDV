@@ -20,7 +20,8 @@ import static jakarta.persistence.EnumType.STRING;
 @Accessors(fluent = false, chain = true)
 @Entity
 @Table(name = "intention_intention")
-public class Intention {
+public class Intention
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int mid;
@@ -41,49 +42,58 @@ public class Intention {
     @OneToMany(mappedBy = "intention", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Candidate> candidates = new ArrayList<>();
 
-    public boolean canMatchDriver() {
+    public boolean canMatchDriver()
+    {
         return status == IntentionStatus.Inited;
     }
 
-    private boolean canConfirm() {
+    private boolean canConfirm()
+    {
         return status == IntentionStatus.Unconfirmed;
     }
 
-    public boolean waitingConfirm() {
-        if (canMatchDriver()) {
+    public boolean waitingConfirm()
+    {
+        if (canMatchDriver())
+        {
             this.status = IntentionStatus.Unconfirmed;
             this.updated = new Date();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    public boolean fail() {
-        if (this.status == IntentionStatus.Inited) {
+    public boolean fail()
+    {
+        if (this.status == IntentionStatus.Inited)
+        {
             this.status = IntentionStatus.Failed;
             this.updated = new Date();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    public int confirmIntention(DriverVo driverVo) {
-        if (!canConfirm()) {
+    public int confirmIntention(DriverVo driverVo)
+    {
+        if (!canConfirm())
+        {
             return -1;
         }
-        if (candidates.stream().map(Candidate::getDriverId).noneMatch(id -> id == driverVo.getId())) {
+        if (candidates.stream().map(Candidate::getDriverId).noneMatch(id -> id == driverVo.getId()))
+        {
             return -2;
         }
-        if (this.selectedDriver == null) {
+        if (this.selectedDriver == null)
+        {
             this.selectedDriver = driverVo;
             this.status = IntentionStatus.Confirmed;
             this.updated = new Date();
             return 0;
-        } else {
+        }
+        else
+        {
             return -3;
         }
-
     }
 }

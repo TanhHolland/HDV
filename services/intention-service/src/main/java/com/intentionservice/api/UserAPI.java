@@ -12,12 +12,14 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Service
-public class UserAPI {
+public class UserAPI
+{
     @Autowired
     private RestTemplate restTemplate;
 
     @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "customerFallback")
-    public Customer findById(Integer id) {
+    public Customer findById(Integer id)
+    {
         Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
         Customer cus = new Customer();
         cus.setCustomerId(id);
@@ -28,7 +30,8 @@ public class UserAPI {
     }
 
     @CircuitBreaker(name = "driverCircuitBreaker", fallbackMethod = "driverFallback")
-    public DriverVo findDriverById(Integer id) {
+    public DriverVo findDriverById(Integer id)
+    {
         Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
         DriverVo driVo = new DriverVo();
         driVo.setId(id);
@@ -38,7 +41,8 @@ public class UserAPI {
         return driVo;
     }
 
-    public Customer customerFallback(Integer id, Throwable throwable) {
+    public Customer customerFallback(Integer id, Throwable throwable)
+    {
         Customer customer = new Customer();
         customer.setCustomerId(-1);
         customer.setCustomerName("default username");
@@ -46,7 +50,8 @@ public class UserAPI {
         return customer;
     }
 
-    public DriverVo driverFallback(Integer id, Throwable throwable) {
+    public DriverVo driverFallback(Integer id, Throwable throwable)
+    {
         DriverVo driverVo = new DriverVo();
         driverVo.setId(-1);
         driverVo.setMobile("0000");

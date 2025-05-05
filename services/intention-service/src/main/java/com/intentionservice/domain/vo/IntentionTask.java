@@ -8,34 +8,40 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @ToString
-public class IntentionTask implements Delayed {
+public class IntentionTask implements Delayed
+{
     private final long NANO_ORIGIN = System.nanoTime();
     private final long executionTime;
     private int intenionId;
     private int repeatTimes;
 
-    public IntentionTask(int intenionId, long time, TimeUnit unit, int repeatTimes) {
+    public IntentionTask(int intenionId, long time, TimeUnit unit, int repeatTimes)
+    {
         this.intenionId = intenionId;
         this.repeatTimes = repeatTimes;
         this.executionTime = TimeUnit.NANOSECONDS.convert(time, unit);
     }
 
 
-    final long now() {
+    final long now()
+    {
         return System.nanoTime() - NANO_ORIGIN;
     }
 
     @Override
-    public long getDelay(TimeUnit unit) {
+    public long getDelay(TimeUnit unit)
+    {
         long d = unit.convert(executionTime - now(), TimeUnit.NANOSECONDS);
         return d;
     }
 
     @Override
-    public int compareTo(Delayed other) {
+    public int compareTo(Delayed other)
+    {
         if (other == this)
             return 0;
-        if (other instanceof IntentionTask) {
+        if (other instanceof IntentionTask)
+        {
             IntentionTask x = (IntentionTask) other;
             long diff = executionTime - x.executionTime;
             if (diff < 0)
