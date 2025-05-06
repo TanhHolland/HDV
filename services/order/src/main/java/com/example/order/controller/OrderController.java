@@ -31,7 +31,7 @@ public class OrderController {
     public String hello() {
         return "Hello order-service";
     }
-    @GetMapping()
+    @GetMapping("/all")
     public List<Order> findAll() {
         return (List<Order>) orderRepository.findAll();
     }
