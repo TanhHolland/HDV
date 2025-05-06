@@ -10,18 +10,26 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: auth-routes
+          uri: http://localhost:8800
+          predicates:
+            - Path=/auth/**
+
         - id: uc-service
           uri: lb://UC-SERVICE
           predicates:
             - Path=/users/**
+
         - id: position-service
           uri: lb://POSITION-SERVICE
           predicates:
             - Path=/api/position/**
+
         - id: order-service
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/api/order/**
+
         - id: intention-service
           uri: lb://INTENTION-SERVICE
           predicates:
@@ -43,3 +51,9 @@ logging:
     org.springframework.cloud.gateway: TRACE
     org.springframework.web.reactive: DEBUG
     reactor.netty: DEBUG
+    com.example.gateway.security: DEBUG
+
+# JWT Configuration
+jwt:
+  secret: ThisIsAVerySecureSecretKeyForJWTTokenGenerationAndValidation
+  expiration: 86400000  # 24 hours in milliseconds
