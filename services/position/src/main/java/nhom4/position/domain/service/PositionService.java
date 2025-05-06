@@ -43,7 +43,8 @@ public class PositionService {
     @Autowired
     PositionRepository positionRepository;
 
-    public void  updatePosition(Integer driverId, Double longitude, Double latitude){
+    public String updatePosition(Integer driverId, Double longitude, Double latitude){
+
         //ghi lai du lieu
         Date current = new Date();
         Position position = new Position();
@@ -77,7 +78,7 @@ public class PositionService {
 
         //Cap nhat vao Redis
         redisTemplate.opsForGeo().add("Driver", new Point(longitude,latitude), String.valueOf(driverId));
-        LOGGER.info("Da cap nhat vi tri moi: " + driverStatus);
+        return ("Da cap nhat vi tri moi: " + driverStatus);
     }
 
     public Collection<DriverStatus> matchDriver(double longtitude, double latitude){
@@ -96,4 +97,6 @@ public class PositionService {
             return drivers.stream().map(Integer::parseInt).map(id -> driverStatusRepo.findByDriver_Id(id)).collect(toList());
         }
     }
+
+
 }
