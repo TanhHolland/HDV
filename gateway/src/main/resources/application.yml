@@ -13,7 +13,7 @@ spring:
         - id: uc-service
           uri: lb://UC-SERVICE
           predicates:
-            - Path=/api/users/**
+            - Path=/users/**
         - id: position-service
           uri: lb://POSITION-SERVICE
           predicates:
