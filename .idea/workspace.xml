@@ -37,7 +37,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Apps/GitHub/mid-project-103547008 - Copy",
+    "last_opened_file_path": "E:/Apps/GitHub/qbike",
     "node.js.selected.package.tslint": "(autodetect)",
     "project.structure.last.edited": "Problems",
     "project.structure.proportion": "0.0",
@@ -46,7 +46,9 @@
 }]]></component>
   <component name="RunManager">
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
-      <deployment type="docker-compose.yml" />
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
     <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
