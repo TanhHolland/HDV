@@ -4,6 +4,8 @@ package com.intentionservice.controller;
 import com.intentionservice.api.PositionAPI;
 import com.intentionservice.api.UserAPI;
 import com.intentionservice.controller.bean.MyIntention;
+import com.intentionservice.domain.repository.IntentionRepository;
+import com.intentionservice.domain.root.Intention;
 import com.intentionservice.domain.service.IntentionService;
 import com.intentionservice.domain.vo.Customer;
 import com.intentionservice.domain.vo.DriverStatusVo;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController()
 @RequestMapping("/api/intentions")
@@ -22,6 +25,8 @@ public class IntentionController
     private IntentionService intentionService;
     @Autowired
     private PositionAPI positionApi;
+    @Autowired
+    private IntentionRepository intentionRepository;
 
     @GetMapping("/user/{id}")
     public Customer findById(@PathVariable Integer id)
@@ -47,5 +52,14 @@ public class IntentionController
     public boolean confirm(int driverId, int intentionId) throws Exception
     {
         return intentionService.confirmIntention(driverId, intentionId);
+    }
+    @GetMapping("/all")
+    public List<Intention> getAllIntentions() {
+        return (List<Intention>) intentionRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Intention getIntentionById(@PathVariable int id) {
+        return intentionRepository.findById(id).orElse(null);
     }
 }

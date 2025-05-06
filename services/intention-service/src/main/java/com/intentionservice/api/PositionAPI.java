@@ -29,7 +29,7 @@ public class PositionAPI
         return matchResponse.getBody();
     }
 
-    public Collection<DriverStatusVo> defaultMatch(double longitude, double latitude)
+    public Collection<DriverStatusVo> defaultMatch(double longitude, double latitude, Throwable throwable)
     {
         return new ArrayList<>();
     }

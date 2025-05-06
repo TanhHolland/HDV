@@ -101,6 +101,7 @@ public class IntentionService
             Intention intention = intentionRepository.findById(intentionId).orElse(null);
             DriverVo driverVo = userApi.findDriverById(driverId);
             int ret = intention.confirmIntention(driverVo);
+            System.out.println("Confirm intention: " + ret);
             if (ret == 0)
             {
                 intentionRepository.save(intention);
@@ -117,7 +118,7 @@ public class IntentionService
                 }
                 catch (JsonProcessingException e)
                 {
-                    System.out.println("IntentionService: Error");
+                    System.out.println(e.getMessage());
                 }
                 return true;
             }
@@ -128,7 +129,7 @@ public class IntentionService
         }
         catch (Exception e)
         {
-            System.out.println("IntentionService: Error");
+            System.out.println(e.getMessage());
             return false;
         }
         finally

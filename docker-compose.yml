@@ -18,7 +18,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: qbike-redis
+    container_name: qbike-redis 
     ports:
       - "6379:6379"
     networks:

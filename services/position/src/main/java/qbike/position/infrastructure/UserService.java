@@ -15,7 +15,7 @@ import qbike.position.domain.core.vo.Driver;
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-    @Value("${BOOKING_UC_URL:http://localhost:8000}")
+    @Value("${BOOKING_UC_URL:http://UC-SERVICE}")
     private String ucServiceUrl;
 
     @Autowired

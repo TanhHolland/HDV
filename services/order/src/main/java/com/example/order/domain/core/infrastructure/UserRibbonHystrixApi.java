@@ -15,6 +15,7 @@ import java.util.Map;
 public class UserRibbonHystrixApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRibbonHystrixApi.class);
 
+    @Autowired
     private RestTemplate restTemplate;
 
     /**
@@ -23,9 +24,9 @@ public class UserRibbonHystrixApi {
      * @param id customerId
      * @return User found by id
      */
-    @HystrixCommand()
+    @HystrixCommand(fallbackMethod = "fallback")
     public CustomerVo findCustomerById(Integer id) {
-        Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
+        Map ret = restTemplate.getForObject("http://UC-SERVICE/users/" + id, Map.class);
         CustomerVo customerVo = new CustomerVo();
         customerVo.setCustomerId(id);
         customerVo.setCustomerMobile(String.valueOf(ret.get("mobile")));
@@ -33,9 +34,9 @@ public class UserRibbonHystrixApi {
         return customerVo;
     }
 
-    @HystrixCommand()
+    @HystrixCommand(fallbackMethod = "fallbackDriver")
     public DriverVo findDriverById(Integer id) {
-        Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
+        Map ret = restTemplate.getForObject("http://UC-SERVICE/users/" + id, Map.class);
         DriverVo driverVo = new DriverVo();
         driverVo.setDriverId(id);
         driverVo.setDriverMobile(String.valueOf(ret.get("mobile")));

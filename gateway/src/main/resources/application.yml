@@ -34,10 +34,12 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
+    root: INFO
+    org.springframework.cloud.gateway: TRACE
     org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
