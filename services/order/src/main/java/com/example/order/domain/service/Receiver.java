@@ -20,6 +20,7 @@ public class Receiver {
     @RabbitHandler
     public void receiveMessage(String message) {
         LOGGER.info("Received new intention <" + message + ">");
+        System.out.println(message);
         try {
             IntentionVo vo = mapper.readValue(message, IntentionVo.class);
             orderService.createOrder(vo);

@@ -39,6 +39,7 @@ public class OrderService {
         order.setIntentionId(String.valueOf(intention.getIntentionId()));
         orderRepository.save(order);
         LOGGER.info("Created new order: {}", order.getOid());
+        System.out.println("Created new order: " + order.getOid());
         return order;
     }
 
@@ -57,7 +58,7 @@ public class OrderService {
             orderRepository.save(order);
             LOGGER.info("Order {} canceled by user {}", order.getOid(), order.getCustomer().getCustomerName());
         } else {
-            throw new Error("Cannot cancel after 3 minutes");
+            throw new IllegalArgumentException("Cannot cancel after 3 minutes");
         }
     }
     @Transactional
@@ -65,5 +66,11 @@ public class OrderService {
         order.setOrderStatus(FlowState.UNPAY.toValue());
         orderRepository.save(order);
         LOGGER.info("Order {} status changed to UNPAY", order.getOid());
+    }
+    @Transactional
+    public void paying(Order order) {
+        order.setOrderStatus(FlowState.PAYING.toValue());
+        orderRepository.save(order);
+        LOGGER.info("Order {} status changed to PAYING", order.getOid());
     }
 }
