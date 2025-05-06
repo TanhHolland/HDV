@@ -20,7 +20,7 @@ public class UserAPI
     @CircuitBreaker(name = "userCircuitBreaker", fallbackMethod = "customerFallback")
     public Customer findById(Integer id)
     {
-        Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
+        Map ret = restTemplate.getForObject("http://UC-SERVICE/users/" + id, Map.class);
         Customer cus = new Customer();
         cus.setCustomerId(id);
         cus.setCustomerMobile(String.valueOf(ret.get("mobile")));
@@ -32,7 +32,7 @@ public class UserAPI
     @CircuitBreaker(name = "driverCircuitBreaker", fallbackMethod = "driverFallback")
     public DriverVo findDriverById(Integer id)
     {
-        Map ret = restTemplate.getForObject("http://QBIKE-UC/users/" + id, Map.class);
+        Map ret = restTemplate.getForObject("http://UC-SERVICE/users/" + id, Map.class);
         DriverVo driVo = new DriverVo();
         driVo.setId(id);
         driVo.setMobile(String.valueOf(ret.get("mobile")));

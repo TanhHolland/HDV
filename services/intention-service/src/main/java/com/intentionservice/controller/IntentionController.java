@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
-@RestController
+@RestController()
+@RequestMapping("/api/intentions")
 public class IntentionController
 {
     @Autowired
@@ -34,7 +35,7 @@ public class IntentionController
         return this.positionApi.match(longitude, latitude);
     }
 
-    @PostMapping("/intentions/place")
+    @PostMapping("/place")
     public void place(@RequestBody MyIntention myIntention)
     {
         intentionService.placeIntention(myIntention.getUserId(), myIntention.getStartLongitude(),
@@ -42,7 +43,7 @@ public class IntentionController
                 myIntention.getDestLongitude(), myIntention.getDestLatitude());
     }
 
-    @PostMapping("/intention/confirm")
+    @PostMapping("/confirm")
     public boolean confirm(int driverId, int intentionId) throws Exception
     {
         return intentionService.confirmIntention(driverId, intentionId);
