@@ -1,7 +1,7 @@
-package qbike.uc.domain.root;
+package nhom4.uc.domain.root;
 
 import lombok.Data;
-import qbike.uc.domain.Type;
+import nhom4.uc.domain.Type;
 
 import jakarta.persistence.*;
 

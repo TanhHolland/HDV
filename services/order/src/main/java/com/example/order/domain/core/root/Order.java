@@ -15,7 +15,7 @@ import java.util.Date;
 @ToString
 @Accessors(fluent = false, chain = true)
 @Entity
-@Table(name = "t_qbike_order")
+@Table(name = "t_nhom4_order")
 public class Order {
     @Id
     @GeneratedValue(generator = "order-id")

@@ -1,4 +1,4 @@
-package qbike.uc.domain.root;
+package nhom4.uc.domain.root;
 
 import lombok.Data;
 

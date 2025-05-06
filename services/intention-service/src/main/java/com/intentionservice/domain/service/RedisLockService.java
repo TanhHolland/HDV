@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toMap;
 @Service
 public class RedisLockService implements LockService
 {
-    private static final String DEFAULT_LOCK_PREFIX = "qbike.lock.";
+    private static final String DEFAULT_LOCK_PREFIX = "nhom4.lock.";
     @Autowired
     StringRedisTemplate redisOperations;
     private String prefix = DEFAULT_LOCK_PREFIX;

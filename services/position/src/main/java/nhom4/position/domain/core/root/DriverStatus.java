@@ -1,9 +1,9 @@
-package qbike.position.domain.core.root;
+package nhom4.position.domain.core.root;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import qbike.position.domain.core.Status;
-import qbike.position.domain.core.vo.Driver;
+import nhom4.position.domain.core.Status;
+import nhom4.position.domain.core.vo.Driver;
 
 import java.util.Date;
 

@@ -3,10 +3,10 @@ version: "3.8"
 services:
   mysql:
     image: mysql:8.0
-    container_name: qbike-mysql
+    container_name: nhom4-mysql
     environment:
       MYSQL_ROOT_PASSWORD: 170903
-      MYSQL_DATABASE: qbike # Thêm dòng này để tạo database mặc định
+      MYSQL_DATABASE: nhom4 # Thêm dòng này để tạo database mặc định
     ports:
       - "3306:3306"
     volumes:
@@ -18,7 +18,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: qbike-redis 
+    container_name: nhom4-redis
     ports:
       - "6379:6379"
     networks:
@@ -26,7 +26,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: qbike-rabbitmq
+    container_name: nhom4-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -40,7 +40,7 @@ services:
     build:
       context: ./eureka
       dockerfile: Dockerfile
-    container_name: qbike-eureka
+    container_name: nhom4-eureka
     ports:
       - "8761:8761"
     networks:
@@ -57,7 +57,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_uc?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_uc?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
@@ -78,7 +78,7 @@ services:
     ports:
       - "8003:8003"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_position?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_position?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       SPRING_REDIS_HOST: redis
@@ -101,7 +101,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_intention?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_intention?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       SPRING_REDIS_HOST: redis
@@ -124,7 +124,7 @@ services:
     ports:
       - "8002:8002"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qbike_order?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_order?useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       SPRING_RABBITMQ_HOST: rabbitmq

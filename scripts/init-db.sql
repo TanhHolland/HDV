@@ -1,11 +1,11 @@
 -- Initialize databases
-CREATE DATABASE IF NOT EXISTS qbike;
-CREATE DATABASE IF NOT EXISTS qbike_uc;
-CREATE DATABASE IF NOT EXISTS qbike_position;
-CREATE DATABASE IF NOT EXISTS qbike_intention;
-CREATE DATABASE IF NOT EXISTS qbike_order;
+CREATE DATABASE IF NOT EXISTS nhom4;
+CREATE DATABASE IF NOT EXISTS nhom4_uc;
+CREATE DATABASE IF NOT EXISTS nhom4_position;
+CREATE DATABASE IF NOT EXISTS nhom4_intention;
+CREATE DATABASE IF NOT EXISTS nhom4_order;
 
-USE qbike_uc;
+USE nhom4_uc;
 
 -- User table for both customers and drivers
 CREATE TABLE IF NOT EXISTS t_user (
@@ -78,7 +78,7 @@ INSERT INTO tb_poi (link_man, shop_name, cell_phone, longitude, latitude, provin
 ('Manager J', 'Aeon Ha Dong', '0123456798', 105.7559, 20.9833, 'Hanoi', 'Hanoi', 'Ha Dong', 'Duong Noi', '30', 1, 'AH001', 'Aeon Ha Dong, 30 Duong Noi, Ha Dong, Hanoi');
 
 -- Initialize Position Service database
-USE qbike_position;
+USE nhom4_position;
 
 CREATE TABLE IF NOT EXISTS t_position (
     tid INT PRIMARY KEY AUTO_INCREMENT,
@@ -130,7 +130,7 @@ INSERT INTO t_position (position_longitude, position_latitude, status, driver_id
 (105.7835, 21.0282, 'ONLINE', '15', NOW());
 
 -- Initialize Intention Service database
-USE qbike_intention;
+USE nhom4_intention;
 
 CREATE TABLE IF NOT EXISTS intention_intention (
     mid INT PRIMARY KEY AUTO_INCREMENT,
@@ -183,9 +183,9 @@ VALUES
 (2, 20, 'Driver 10', '0912345680', 105.7984, 21.0332, NOW());
 
 -- Initialize Order Service database
-USE qbike_order;
+USE nhom4_order;
 
-CREATE TABLE IF NOT EXISTS t_qbike_order (
+CREATE TABLE IF NOT EXISTS t_nhom4_order (
     oid VARCHAR(36) PRIMARY KEY,
     customer_id INT,
     customer_name VARCHAR(64),
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS t_qbike_order (
 );
 
 -- Insert sample orders with different statuses
-INSERT INTO t_qbike_order (oid, customer_id, customer_name, customer_mobile, driver_id, driver_name, driver_mobile, start_long, start_lat, dest_long, dest_lat, opened, order_status, intention_id)
+INSERT INTO t_nhom4_order (oid, customer_id, customer_name, customer_mobile, driver_id, driver_name, driver_mobile, start_long, start_lat, dest_long, dest_lat, opened, order_status, intention_id)
 VALUES
 (UUID(), 3, 'Le Van C', '0987654323', 13, 'Driver 3', '0912345673', 105.8135, 21.0294, 105.7835, 21.0282, NOW(), 'WAITING_ABOARD', '3'),
 (UUID(), 5, 'Hoang Van E', '0987654325', 15, 'Driver 5', '0912345675', 105.8693, 20.9956, 105.8154, 21.0019, DATE_SUB(NOW(), INTERVAL 15 MINUTE), 'WAITING_ARRIVE', '5'),

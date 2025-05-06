@@ -1,4 +1,4 @@
-package qbike.position.domain.core.vo;
+package nhom4.position.domain.core.vo;
 
 import lombok.Data;
 

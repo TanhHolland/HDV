@@ -1,5 +1,6 @@
 package com.intentionservice.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.intentionservice.domain.root.Intention;
 import lombok.Data;
 
@@ -14,6 +15,8 @@ public class Candidate
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int cid;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "intention_id")
     private Intention intention;

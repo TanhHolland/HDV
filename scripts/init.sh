@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🏗️ Building and starting QBike microservices system..."
+echo "🏗️ Building and starting nhom4 microservices system..."
 echo "======================================================"
 
 # Create necessary directories
