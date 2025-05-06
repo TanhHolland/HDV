@@ -41,11 +41,15 @@ public class IntentionController
     }
 
     @PostMapping("/place")
-    public void place(@RequestBody MyIntention myIntention)
+    public String place(@RequestBody MyIntention myIntention)
     {
         intentionService.placeIntention(myIntention.getUserId(), myIntention.getStartLongitude(),
                 myIntention.getStartLatitude(),
                 myIntention.getDestLongitude(), myIntention.getDestLatitude());
+        return "user " + myIntention.getUserId() + " place intention successfully with start longitude: "
+                + myIntention.getStartLongitude() + " and start latitude: " + myIntention.getStartLatitude()
+                + " and dest longitude: " + myIntention.getDestLongitude() + " and dest latitude: "
+                + myIntention.getDestLatitude();
     }
 
     @PostMapping("/confirm")
@@ -53,6 +57,7 @@ public class IntentionController
     {
         return intentionService.confirmIntention(driverId, intentionId);
     }
+
     @GetMapping("/all")
     public List<Intention> getAllIntentions() {
         return (List<Intention>) intentionRepository.findAll();
