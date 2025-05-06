@@ -7,9 +7,7 @@ public enum FlowState {
     WAITING_ABOARD("WAITING_ABOARD", "Waiting for boarding"),
     WAITING_ARRIVE("WAITING_ARRIVE", "Waiting to arrive at destination"),
     UNPAY("UNPAY", "Waiting for payment"),
-    PAYING("PAYING", "Payment submitted, awaiting confirmation"),
-    WAITING_COMMENT("WAITING_COMMENT", "Waiting for review"),
-    CLOSED("CLOSED", "Order closed"),
+    PAYING("PAYING", "Payment submitted"),
     CANCELED("CANCELED", "Order canceled");
     private static Map<String, FlowState> flowStateMap = new HashMap<>();
 
@@ -18,8 +16,6 @@ public enum FlowState {
         flowStateMap.put(WAITING_ARRIVE.getStateId(), WAITING_ARRIVE);
         flowStateMap.put(UNPAY.getStateId(), UNPAY);
         flowStateMap.put(PAYING.getStateId(), PAYING);
-        flowStateMap.put(WAITING_COMMENT.getStateId(), WAITING_COMMENT);
-        flowStateMap.put(CLOSED.getStateId(), CLOSED);
         flowStateMap.put(CANCELED.getStateId(), CANCELED);
     }
 
