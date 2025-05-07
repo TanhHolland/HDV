@@ -1,0 +1,365 @@
+openapi: 3.0.3
+info:
+  title: Order Service API
+  description: API cho dịch vụ quản lý đơn hàng
+  version: 1.0.0
+  contact:
+    name: Nhóm 4
+    email: nhom4@example.com
+servers:
+  - url: http://localhost:8800
+    description: API Gateway URL
+  - url: http://localhost:8002
+    description: Order Service URL trực tiếp
+
+tags:
+  - name: order
+    description: Các API liên quan đến đơn hàng
+
+paths:
+  /api/order:
+    get:
+      tags:
+        - order
+      summary: Kiểm tra kết nối
+      description: Kiểm tra kết nối đến Order Service
+      operationId: hello
+      responses:
+        '200':
+          description: Kết nối thành công
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello order-service"
+
+  /api/order/all:
+    get:
+      tags:
+        - order
+      summary: Lấy tất cả đơn hàng
+      description: Trả về danh sách tất cả đơn hàng trong hệ thống
+      operationId: findAll
+      responses:
+        '200':
+          description: Danh sách đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '500':
+          description: Lỗi Server
+
+  /api/order/create:
+    post:
+      tags:
+        - order
+      summary: Tạo đơn hàng mới
+      description: Tạo một đơn hàng mới từ yêu cầu đặt xe đã được xác nhận
+      operationId: createOrder
+      requestBody:
+        description: Thông tin yêu cầu đặt xe
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntentionVo'
+        required: true
+      responses:
+        '200':
+          description: Đơn hàng được tạo thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["success", "51ff979e-f5c8-4ae1-b99a-8d48032bd430"]
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Validation failed: driverId must be positive"]
+        '500':
+          description: Lỗi Server
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Internal Server Error"]
+
+  /api/order/aboard:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái lên xe
+      description: Cập nhật trạng thái đơn hàng khi khách hàng đã lên xe
+      operationId: aboard
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["success aboard", "51ff979e-f5c8-4ae1-b99a-8d48032bd430", "Nguyễn Văn A"]
+        '404':
+          description: Không tìm thấy đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Order not found"]
+        '500':
+          description: Lỗi Server
+
+  /api/order/arrive:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái đến nơi
+      description: Cập nhật trạng thái đơn hàng khi tài xế đã đến nơi
+      operationId: arrive
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["success arrive", "51ff979e-f5c8-4ae1-b99a-8d48032bd430", "Nguyễn Văn A"]
+        '404':
+          description: Không tìm thấy đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Order not found"]
+        '500':
+          description: Lỗi Server
+
+  /api/order/paying:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái thanh toán
+      description: Cập nhật trạng thái đơn hàng khi khách hàng đã thanh toán
+      operationId: paying
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["success paying, da tra", "51ff979e-f5c8-4ae1-b99a-8d48032bd430", "Nguyễn Văn A"]
+        '404':
+          description: Không tìm thấy đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Order not found"]
+        '500':
+          description: Lỗi Server
+
+  /api/order/cancel:
+    post:
+      tags:
+        - order
+      summary: Hủy đơn hàng
+      description: Hủy đơn hàng trong vòng 3 phút sau khi tạo
+      operationId: cancelOrder
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Hủy đơn hàng thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["success cancel", "51ff979e-f5c8-4ae1-b99a-8d48032bd430", "Nguyễn Văn A"]
+        '400':
+          description: Không thể hủy đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Cannot cancel after 3 minutes"]
+        '404':
+          description: Không tìm thấy đơn hàng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["error", "Order not found"]
+        '500':
+          description: Lỗi Server
+
+components:
+  schemas:
+    CustomerVo:
+      type: object
+      required:
+        - customerId
+        - customerName
+        - customerMobile
+      properties:
+        customerId:
+          type: integer
+          format: int32
+          example: 1
+        customerName:
+          type: string
+          example: "Nguyễn Văn A"
+        customerMobile:
+          type: string
+          example: "0987654321"
+
+    DriverVo:
+      type: object
+      required:
+        - driverId
+        - driverName
+        - driverMobile
+      properties:
+        driverId:
+          type: integer
+          format: int32
+          example: 11
+        driverName:
+          type: string
+          example: "Driver 1"
+        driverMobile:
+          type: string
+          example: "0912345671"
+
+    IntentionVo:
+      type: object
+      required:
+        - customerId
+        - startLong
+        - startLat
+        - destLong
+        - destLat
+        - intentionId
+        - driverId
+      properties:
+        customerId:
+          type: integer
+          format: int32
+          example: 1
+        startLong:
+          type: number
+          format: double
+          example: 105.8521
+        startLat:
+          type: number
+          format: double
+          example: 21.0245
+        destLong:
+          type: number
+          format: double
+          example: 105.8315
+        destLat:
+          type: number
+          format: double
+          example: 21.0277
+        intentionId:
+          type: integer
+          format: int32
+          example: 1
+        driverId:
+          type: integer
+          format: int32
+          example: 11
+
+    Order:
+      type: object
+      properties:
+        oid:
+          type: string
+          example: "51ff979e-f5c8-4ae1-b99a-8d48032bd430"
+        customer:
+          $ref: '#/components/schemas/CustomerVo'
+        driver:
+          $ref: '#/components/schemas/DriverVo'
+        startLong:
+          type: number
+          format: double
+          example: 105.8521
+        startLat:
+          type: number
+          format: double
+          example: 21.0245
+        destLong:
+          type: number
+          format: double
+          example: 105.8315
+        destLat:
+          type: number
+          format: double
+          example: 21.0277
+        opened:
+          type: string
+          format: date-time
+          example: "2024-05-20T10:30:45"
+        orderStatus:
+          type: string
+          enum: [WAITING_ABOARD, WAITING_ARRIVE, UNPAY, PAYING, CANCELED]
+          example: "WAITING_ABOARD"
+        intentionId:
+          type: string
+          example: "1"
