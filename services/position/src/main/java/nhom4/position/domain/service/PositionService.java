@@ -6,7 +6,8 @@ import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,7 @@ public class PositionService {
     @Autowired
     PositionRepository positionRepository;
 
+    @CacheEvict(value = {"drivers", "locations"}, key = "#driverId")
     public void  updatePosition(Integer driverId, Double longitude, Double latitude){
         //ghi lai du lieu
         Date current = new Date();
@@ -80,6 +82,7 @@ public class PositionService {
         LOGGER.info("Da cap nhat vi tri moi: " + driverStatus);
     }
 
+    @Cacheable(value = "locations", key = "#longitude + '-' + #latitude")
     public Collection<DriverStatus> matchDriver(double longtitude, double latitude){
         Circle circle = new Circle(new Point(longtitude,latitude),
                 new Distance(500, RedisGeoCommands.DistanceUnit.METERS));

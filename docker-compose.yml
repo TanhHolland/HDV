@@ -6,7 +6,7 @@ services:
     container_name: nhom4-mysql
     environment:
       MYSQL_ROOT_PASSWORD: 170903
-      MYSQL_DATABASE: nhom4 # Thêm dòng này để tạo database mặc định
+      MYSQL_DATABASE: nhom4
     ports:
       - "3306:3306"
     volumes:
@@ -14,15 +14,44 @@ services:
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - booking-network
-    command: --init-file=/docker-entrypoint-initdb.d/init-db.sql # Thêm dòng này
+    command: --init-file=/docker-entrypoint-initdb.d/init-db.sql
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
   redis:
     image: redis:7-alpine
     container_name: nhom4-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  # Thêm Redis Commander
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: nhom4-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - booking-network
+    depends_on:
+      - redis
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -33,8 +62,62 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  # Thêm Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nhom4-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - booking-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  # Thêm Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nhom4-grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - booking-network
+    depends_on:
+      - prometheus
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
 
   eureka:
     build:
@@ -45,15 +128,24 @@ services:
       - "8761:8761"
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
-  uc-service:
+  # UC Service với 2 instance
+  uc-service-1:
     build:
       context: ./services/uc
       dockerfile: Dockerfile
-    container_name: uc-service
+    container_name: uc-service-1
     depends_on:
       - mysql
       - eureka
+      - prometheus
     ports:
       - "8000:8000"
     environment:
@@ -62,19 +154,59 @@ services:
       SPRING_DATASOURCE_PASSWORD: 170903
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8000
+      SPRING_APPLICATION_NAME: UC-SERVICE
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
 
-  position-service:
+  uc-service-2:
+    build:
+      context: ./services/uc
+      dockerfile: Dockerfile
+    container_name: uc-service-2
+    depends_on:
+      - mysql
+      - eureka
+      - prometheus
+    ports:
+      - "8011:8000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_uc?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8000
+      SPRING_APPLICATION_NAME: UC-SERVICE
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  # Position Service với 2 instance
+  position-service-1:
     build:
       context: ./services/position
       dockerfile: Dockerfile
-    container_name: position-service
+    container_name: position-service-1
     depends_on:
       - mysql
       - redis
       - eureka
-      - uc-service
+      - uc-service-1
+      - prometheus
     ports:
       - "8003:8003"
     environment:
@@ -82,22 +214,66 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 170903
       SPRING_REDIS_HOST: redis
-      BOOKING_UC_URL: http://uc-service:8000
+      BOOKING_UC_URL: http://uc-service-1:8000
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8003
+      SPRING_APPLICATION_NAME: POSITION-SERVICE
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
 
-  intention-service:
+  position-service-2:
+    build:
+      context: ./services/position
+      dockerfile: Dockerfile
+    container_name: position-service-2
+    depends_on:
+      - mysql
+      - redis
+      - eureka
+      - uc-service-1
+      - prometheus
+    ports:
+      - "8012:8003"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_position?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      BOOKING_UC_URL: http://uc-service-1:8000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8003
+      SPRING_APPLICATION_NAME: POSITION-SERVICE
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  # Intention Service với 2 instance
+  intention-service-1:
     build:
       context: ./services/intention-service
       dockerfile: Dockerfile
-    container_name: intention-service
+    container_name: intention-service-1
     depends_on:
       - mysql
       - redis
       - rabbitmq
       - eureka
+      - prometheus
     ports:
       - "8001:8001"
     environment:
@@ -108,19 +284,64 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8001
+      SPRING_APPLICATION_NAME: INTENTION-SERVICE
       SPRING_PROFILES_ACTIVE: docker
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
 
-  order-service:
+  intention-service-2:
+    build:
+      context: ./services/intention-service
+      dockerfile: Dockerfile
+    container_name: intention-service-2
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+      - eureka
+      - prometheus
+    ports:
+      - "8013:8001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_intention?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8001
+      SPRING_APPLICATION_NAME: INTENTION-SERVICE
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  # Order Service với 2 instance
+  order-service-1:
     build:
       context: ./services/order
       dockerfile: Dockerfile
-    container_name: order-service
+    container_name: order-service-1
     depends_on:
       - mysql
       - rabbitmq
       - eureka
+      - prometheus
     ports:
       - "8002:8002"
     environment:
@@ -130,27 +351,178 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8002
+      SPRING_APPLICATION_NAME: ORDER-SERVICE
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
 
-  gateway:
+  order-service-2:
+    build:
+      context: ./services/order
+      dockerfile: Dockerfile
+    container_name: order-service-2
+    depends_on:
+      - mysql
+      - rabbitmq
+      - eureka
+      - prometheus
+    ports:
+      - "8014:8002"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nhom4_order?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8002
+      SPRING_APPLICATION_NAME: ORDER-SERVICE
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  # Notification Service với 2 instance
+  notification-service-1:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    container_name: notification-service-1
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+      - eureka
+      - prometheus
+    ports:
+      - "8004:8004"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notification_db?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8004
+      SPRING_APPLICATION_NAME: NOTIFICATION-SERVICE
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  notification-service-2:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    container_name: notification-service-2
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+      - eureka
+      - prometheus
+    ports:
+      - "8015:8004"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notification_db?useUnicode=true&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 170903
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8004
+      SPRING_APPLICATION_NAME: NOTIFICATION-SERVICE
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  # API Gateway với 2 instance
+  gateway-1:
     build:
       context: ./gateway
       dockerfile: Dockerfile
-    container_name: gateway
+    container_name: gateway-1
     depends_on:
       - eureka
-      - uc-service
-      - position-service
-      - intention-service
-      - order-service
+      - uc-service-1
+      - position-service-1
+      - intention-service-1
+      - order-service-1
+      - notification-service-1
+      - prometheus
     ports:
       - "8800:8800"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8800
+      SPRING_APPLICATION_NAME: GATEWAY
     networks:
       - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  gateway-2:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway-2
+    depends_on:
+      - eureka
+      - uc-service-1
+      - position-service-1
+      - intention-service-1
+      - order-service-1
+      - notification-service-1
+      - prometheus
+    ports:
+      - "8801:8800"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      SERVER_PORT: 8800
+      SPRING_APPLICATION_NAME: GATEWAY
+    networks:
+      - booking-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
 
 networks:
   booking-network:
@@ -158,3 +530,7 @@ networks:
 
 volumes:
   mysql-data:
+  redis-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:

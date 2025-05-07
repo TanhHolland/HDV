@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intentionservice.api.PositionAPI;
 import com.intentionservice.api.UserAPI;
+import io.micrometer.core.instrument.Counter;
 import com.intentionservice.controller.bean.IntentionVo;
 import com.intentionservice.domain.exeption.ValidationException;
 import com.intentionservice.domain.repository.CandidateRepository;
@@ -29,6 +30,15 @@ import static java.util.stream.Collectors.toList;
 public class IntentionService {
     @Autowired
     IntentionRepository intentionRepository;
+
+    @Autowired
+    private Counter intentionPlacedCounter;
+
+    @Autowired
+    private Counter intentionConfirmedCounter;
+
+    @Autowired
+    private Counter intentionFailedCounter;
 
     @Autowired
     UserAPI userApi;
@@ -91,7 +101,7 @@ public class IntentionService {
                     .setStatus(IntentionStatus.Inited);
 
             intentionRepository.save(intention);
-
+            intentionPlacedCounter.increment();
             if (intention.getMid() <= 0) {
                 throw new ValidationException("Failed to save intention");
             }
@@ -174,6 +184,7 @@ public class IntentionService {
                 } catch (JsonProcessingException e) {
                     System.out.println("Error processing JSON: " + e.getMessage());
                 }
+                intentionConfirmedCounter.increment();
                 return true;
             } else {
                 switch (ret) {
@@ -207,7 +218,7 @@ public class IntentionService {
             if (intention == null) {
                 throw new ValidationException("Cannot mark match as failed: intention is null");
             }
-
+            intentionFailedCounter.increment();
             intention.fail();
             intentionRepository.save(intention);
             System.out.println("Marked intention ID: " + intention.getMid() + " as failed");
