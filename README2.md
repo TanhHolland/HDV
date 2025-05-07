@@ -1,45 +1,15 @@
 # 🧩 Hệ thống Đặt Xe - Microservices
 
-Đây là dự án xây dựng hệ thống đặt xe trực tuyến dựa trên kiến trúc microservices. Hệ thống được thiết kế để quản lý toàn bộ quá trình từ đặt xe, ghép tài xế đến hoàn thành chuyến đi và thanh toán.
+## 👩‍💻 Thành viên nhóm 4
+
+| Họ Tên | MSSV | Vai trò |
+|--------|------|---------|
+|Nguyễn Anh Quân|B21DCCN103|Intention Service
+|Nguyễn Tuấn Anh|B21DCCN008|Order Service
+|Lê Đức Nam|B21DCCN547|UC Service, Position Service
 
 ---
-
-## 📁 Cấu trúc thư mục
-
-```
-microservices-assignment/
-├── README.md                       # File hướng dẫn chính
-├── .env.example                    # Biến môi trường mẫu
-├── docker-compose.yml              # Cấu hình Docker Compose
-├── docs/                           # Thư mục tài liệu
-│   ├── architecture.md             # Mô tả kiến trúc hệ thống
-│   ├── analysis-and-design.md      # Phân tích và thiết kế
-│   ├── asset/                      # Hình ảnh, sơ đồ
-│   └── api-specs/                  # Tài liệu API (OpenAPI/YAML)
-│       ├── service-a.yaml
-│       └── service-b.yaml
-├── scripts/                        # Script hỗ trợ
-│   └── init.sh                     # Script khởi tạo
-├── services/                       # Các microservices
-│   ├── uc/                         # User & Customer Service
-│   │   ├── Dockerfile
-│   │   └── src/                    # Mã nguồn
-│   ├── position/                   # Position Service
-│   │   ├── Dockerfile
-│   │   └── src/                    # Mã nguồn
-│   ├── intention-service/          # Intention Service
-│   │   ├── Dockerfile
-│   │   └── src/                    # Mã nguồn
-│   └── order/                      # Order Service
-│       ├── Dockerfile
-│       └── src/                    # Mã nguồn
-├── eureka/                         # Eureka Service Discovery
-│   ├── Dockerfile
-│   └── src/                        # Mã nguồn
-└── gateway/                        # API Gateway
-    ├── Dockerfile
-    └── src/                        # Mã nguồn
-```
+Đây là dự án xây dựng hệ thống đặt xe trực tuyến dựa trên kiến trúc microservices. Hệ thống được thiết kế để quản lý toàn bộ quá trình từ đặt xe, ghép tài xế đến hoàn thành chuyến đi.
 
 ---
 
@@ -72,12 +42,6 @@ microservices-assignment/
    docker-compose up --build
    ```
 
-   Hoặc sử dụng script khởi tạo:
-
-   ```bash
-   chmod +x scripts/init.sh
-   ./scripts/init.sh
-   ```
 
 4. **Kiểm tra các dịch vụ**
     - Eureka Dashboard: http://localhost:8761
@@ -186,19 +150,8 @@ microservices-assignment/
    ```bash
    curl -X POST "http://localhost:8800/api/order/arrive?orderId=<order_id>"
    ```
-
-5. Thanh toán:
-   ```bash
-   curl -X POST "http://localhost:8800/api/order/paying?orderId=<order_id>"
-   ```
-
 ---
 
-## 👩‍💻 Thành viên nhóm 4
-
-| Họ Tên | MSSV | Vai trò |
-|--------|------|---------|
----
 
 ## 📚 Tài liệu tham khảo
 
