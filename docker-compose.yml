@@ -120,6 +120,18 @@ services:
           memory: 512M
 
   eureka:
+    environment:
+      - SERVER_PORT=8761
+      - EUREKA_INSTANCE_HOSTNAME=discovery
+      - EUREKA_CLIENT_REGISTERWITHEUREKA=false
+      - EUREKA_CLIENT_FETCHREGISTRY=false
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus,metrics
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW-DETAILS=always
+      - MANAGEMENT_ENDPOINT_METRICS_ENABLED=true
+      - MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED=true
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+      - MANAGEMENT_METRICS_DISTRIBUTION_PERCENTILES-HISTOGRAM_HTTP_SERVER_REQUESTS=true
     build:
       context: ./eureka
       dockerfile: Dockerfile
@@ -394,76 +406,7 @@ services:
           cpus: '0.3'
           memory: 384M
 
-  # Notification Service với 2 instance
-  notification-service-1:
-    build:
-      context: ./services/notification
-      dockerfile: Dockerfile
-    container_name: notification-service-1
-    depends_on:
-      - mysql
-      - redis
-      - rabbitmq
-      - eureka
-      - prometheus
-    ports:
-      - "8004:8004"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notification_db?useUnicode=true&characterEncoding=utf8
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 170903
-      SPRING_REDIS_HOST: redis
-      SPRING_RABBITMQ_HOST: rabbitmq
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SERVER_PORT: 8004
-      SPRING_APPLICATION_NAME: NOTIFICATION-SERVICE
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - booking-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 384M
 
-  notification-service-2:
-    build:
-      context: ./services/notification
-      dockerfile: Dockerfile
-    container_name: notification-service-2
-    depends_on:
-      - mysql
-      - redis
-      - rabbitmq
-      - eureka
-      - prometheus
-    ports:
-      - "8015:8004"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notification_db?useUnicode=true&characterEncoding=utf8
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 170903
-      SPRING_REDIS_HOST: redis
-      SPRING_RABBITMQ_HOST: rabbitmq
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SERVER_PORT: 8004
-      SPRING_APPLICATION_NAME: NOTIFICATION-SERVICE
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - booking-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 384M
-
-  # API Gateway với 2 instance
   gateway-1:
     build:
       context: ./gateway
@@ -475,7 +418,6 @@ services:
       - position-service-1
       - intention-service-1
       - order-service-1
-      - notification-service-1
       - prometheus
     ports:
       - "8800:8800"
@@ -505,7 +447,6 @@ services:
       - position-service-1
       - intention-service-1
       - order-service-1
-      - notification-service-1
       - prometheus
     ports:
       - "8801:8800"
