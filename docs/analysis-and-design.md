@@ -151,17 +151,22 @@
     MySQL_nhom4_position --> MySQL
     MySQL_nhom4_uc --> MySQL
 
-
-    %% Styling (Optional)
-    style FE fill:#f9f,stroke:#333,stroke-width:1px
-    style GW fill:#ccf,stroke:#333,stroke-width:1px
-    style Eureka fill:#ff9,stroke:#333,stroke-width:1px
-    style MySQL fill:#9cf,stroke:#333,stroke-width:1px
-    style Docker fill:#ddd,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
-    style MySQL_nhom4_order fill:#adf,stroke:#333,stroke-width:1px
-    style MySQL_nhom4_intention fill:#adf,stroke:#333,stroke-width:1px
-    style MySQL_nhom4_position fill:#adf,stroke:#333,stroke-width:1px
-    style MySQL_nhom4_uc fill:#adf,stroke:#333,stroke-width:1px
+    %% Adjusted Styling for GitHub (High contrast for text readability)
+    style FE fill:#ff6666,stroke:#000000,stroke-width:2px
+    style GW fill:#3399ff,stroke:#000000,stroke-width:2px
+    style Eureka fill:#ff6633,stroke:#000000,stroke-width:2px
+    style MySQL fill:#3311ff,stroke:#000000,stroke-width:2px
+    style Docker fill:#ff3355,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5
+    style MySQL_nhom4_order fill:#3377ff,stroke:#000000,stroke-width:2px
+    style MySQL_nhom4_intention fill:#3377ff,stroke:#000000,stroke-width:2px
+    style MySQL_nhom4_position fill:#3377ff,stroke:#000000,stroke-width:2px
+    style MySQL_nhom4_uc fill:#3377ff,stroke:#000000,stroke-width:2px
+    style rabbit fill:#ff33cc,stroke:#000000,stroke-width:2px
+    style Redis fill:#ff3333,stroke:#000000,stroke-width:2px
+    style OrderSvc fill:#666666,stroke:#000000,stroke-width:2px
+    style IntentionSvc fill:#666666,stroke:#000000,stroke-width:2px
+    style PositionSvc fill:#666666,stroke:#000000,stroke-width:2px
+    style UCSvc fill:#666666,stroke:#000000,stroke-width:2px
 ```
 
 ## ✅ Tổng kết
