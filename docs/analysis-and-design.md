@@ -95,35 +95,73 @@
 
 ## 7. 🎨 Sơ đồ Luồng Đặt Xe
 
-```
-+-------------+        +----------------+
-| Khách hàng  | -----> |  API Gateway   | -----> +----------------+
-+-------------+        +----------------+        | UC Service     |
-                               |                 | (Xác thực)     |
-                               v                 +----------------+
-                        +----------------+
-                        |Intention Service|
-                        +----------------+
-                               |
-                               v
-                        +----------------+
-                        |Position Service | (Tìm tài xế gần)
-                        +----------------+
-                               |
-                               v
-                        +----------------+
-                        |Intention Service| (Ghép tài xế)
-                        +----------------+
-                               |
-                               v
-                        +----------------+
-                        |    RabbitMQ    |
-                        +----------------+
-                               |
-                               v
-                        +----------------+
-                        | Order Service  | (Tạo đơn hàng)
-                        +----------------+
+```mermaid
+ graph LR
+    subgraph "User Interaction"
+        FE(Frontend)
+    end
+
+    subgraph "Infrastructure"
+        GW(API Gateway)
+        Eureka(Eureka Server)
+        MySQL(MySQL Group)
+        rabbit(RabbitMQ)
+        Docker(Docker Environment)
+        Redis(Redis)
+    end
+
+    subgraph "Microservices"
+        OrderSvc(Order Service)
+        IntentionSvc(Intention Service)
+        PositionSvc(Position Service)
+        UCSvc(UC Service)
+    end
+
+    
+    %% Interactions
+    FE --> GW
+    GW --> OrderSvc
+    GW --> PositionSvc
+    GW --> IntentionSvc
+    GW --> UCSvc
+
+    OrderSvc -- Register/Discover --> Eureka
+    IntentionSvc -- Register/Discover --> Eureka
+    PositionSvc -- Register/Discover --> Eureka
+    UCSvc -- Register/Discover --> Eureka
+    GW -- Register/Discover --> Eureka
+
+    %% Database Connections
+    OrderSvc -- JDBC --> MySQL_nhom4_order(DB nhom4_order)
+    IntentionSvc -- JDBC --> MySQL_nhom4_intention(DB nhom4_intention)
+    PositionSvc -- JDBC --> MySQL_nhom4_position(DB nhom4_position)
+    UCSvc -- JDBC --> MySQL_nhom4_uc(DB nhom4_uc)
+
+    %% Redis Connection
+    PositionSvc --> Redis
+    
+    %% RabbitMQ Interactions
+    OrderSvc --> rabbit
+    IntentionSvc --> rabbit
+    OrderSvc -- Message Exchange --> IntentionSvc
+
+    %% Group DBs visually under MySQL
+    MySQL_nhom4_order --> MySQL
+    MySQL_nhom4_intention --> MySQL
+    MySQL_nhom4_position --> MySQL
+    MySQL_nhom4_uc --> MySQL
+
+
+    %% Styling (Optional)
+    style FE fill:#f9f,stroke:#333,stroke-width:1px
+    style GW fill:#ccf,stroke:#333,stroke-width:1px
+    style Eureka fill:#ff9,stroke:#333,stroke-width:1px
+    style MySQL fill:#9cf,stroke:#333,stroke-width:1px
+    style Docker fill:#ddd,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+    style MySQL_nhom4_order fill:#adf,stroke:#333,stroke-width:1px
+    style MySQL_nhom4_intention fill:#adf,stroke:#333,stroke-width:1px
+    style MySQL_nhom4_position fill:#adf,stroke:#333,stroke-width:1px
+    style MySQL_nhom4_uc fill:#adf,stroke:#333,stroke-width:1px
 ```
 
 ## ✅ Tổng kết
