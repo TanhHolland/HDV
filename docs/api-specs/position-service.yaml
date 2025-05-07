@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Position Service API
+  description: API cho dịch vụ quản lý vị trí tài xế
+  version: 1.0.0
+  contact:
+    name: Nhóm 4
+    email: nhom4@example.com
+servers:
+  - url: http://localhost:8800
+    description: API Gateway URL
+  - url: http://localhost:8003
+    description: Position Service URL trực tiếp
+
+tags:
+  - name: position
+    description: Các API liên quan đến vị trí
+
+paths:
+  /api/position/update:
+    post:
+      tags:
+        - position
+      summary: Cập nhật vị trí tài xế
+      description: Cập nhật vị trí hiện tại của tài xế trong hệ thống
+      operationId: updatePosition
+      parameters:
+        - name: driverId
+          in: query
+          description: ID của tài xế
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: longitude
+          in: query
+          description: Kinh độ
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: latitude
+          in: query
+          description: Vĩ độ
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Vị trí đã được cập nhật thành công
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Đã cập nhật vị trí mới: DriverStatus(dId=1, driver=Driver(id=1, userName=Driver 1, mobile=0912345671, type=Driver), currentLongitude=105.8315, currentLatitude=21.0277, status=ONLINE, updateTime=2024-05-20T10:30:45)"
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Toạ độ không hợp lệ"
+        '500':
+          description: Lỗi Server
+
+  /api/position/match:
+    get:
+      tags:
+        - position
+      summary: Tìm tài xế gần vị trí khách hàng
+      description: Trả về danh sách tài xế gần vị trí được chỉ định trong bán kính 500m
+      operationId: matchDrivers
+      parameters:
+        - name: longitude
+          in: query
+          description: Kinh độ
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: latitude
+          in: query
+          description: Vĩ độ
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Danh sách tài xế gần vị trí
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverStatus'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Tọa độ không hợp lệ"
+        '500':
+          description: Lỗi Server
+
+components:
+  schemas:
+    Driver:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 11
+        userName:
+          type: string
+          example: "Driver 1"
+        mobile:
+          type: string
+          example: "0912345671"
+        type:
+          type: string
+          example: "Driver"
+
+    DriverStatus:
+      type: object
+      properties:
+        dId:
+          type: integer
+          format: int32
+          example: 11
+        driver:
+          $ref: '#/components/schemas/Driver'
+        currentLongitude:
+          type: number
+          format: double
+          example: 105.8315
+        currentLatitude:
+          type: number
+          format: double
+          example: 21.0277
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE, BUSY]
+          example: "ONLINE"
+        updateTime:
+          type: string
+          format: date-time
+          example: "2024-05-20T10:30:45"

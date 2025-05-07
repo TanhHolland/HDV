@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: UC Service API
+  description: API cho User & Customer Service
+  version: 1.0.0
+  contact:
+    name: Nhóm 4
+    email: nhom4@example.com
+servers:
+  - url: http://localhost:8800
+    description: API Gateway URL
+  - url: http://localhost:8000
+    description: UC Service URL trực tiếp
+
+tags:
+  - name: users
+    description: Quản lý thông tin người dùng
+
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: Lấy danh sách tất cả người dùng
+      description: Trả về danh sách tất cả người dùng trong hệ thống
+      operationId: getUsers
+      responses:
+        '200':
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Lỗi Server
+
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: Lấy thông tin người dùng theo ID
+      description: Trả về thông tin chi tiết của một người dùng dựa trên ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID của người dùng
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Thông tin người dùng thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Không tìm thấy người dùng
+        '500':
+          description: Lỗi Server
+
+  /users/create:
+    post:
+      tags:
+        - users
+      summary: Tạo người dùng mới
+      description: Tạo một người dùng mới trong hệ thống
+      operationId: createUser
+      requestBody:
+        description: Thông tin người dùng
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '201':
+          description: Người dùng được tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+        '500':
+          description: Lỗi Server
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required:
+        - userName
+        - mobile
+        - type
+      properties:
+        userName:
+          type: string
+          example: "Nguyễn Văn A"
+        mobile:
+          type: string
+          example: "0987654321"
+        type:
+          type: string
+          enum: [Customer, Driver]
+          example: "Customer"
+        province:
+          type: string
+          example: "Hanoi"
+        city:
+          type: string
+          example: "Hanoi"
+        district:
+          type: string
+          example: "Cau Giay"
+        street:
+          type: string
+          example: "Tran Duy Hung"
+        originAddress:
+          type: string
+          example: "123 Tran Duy Hung, Cau Giay, Hanoi"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        userName:
+          type: string
+          example: "Nguyễn Văn A"
+        mobile:
+          type: string
+          example: "0987654321"
+        type:
+          type: string
+          enum: [Customer, Driver]
+          example: "Customer"
+        province:
+          type: string
+          example: "Hanoi"
+        city:
+          type: string
+          example: "Hanoi"
+        district:
+          type: string
+          example: "Cau Giay"
+        street:
+          type: string
+          example: "Tran Duy Hung"
+        originAddress:
+          type: string
+          example: "123 Tran Duy Hung, Cau Giay, Hanoi"

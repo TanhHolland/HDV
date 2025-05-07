@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Eureka Server API
+  description: API cho dịch vụ Eureka Service Discovery
+  version: 1.0.0
+  contact:
+    name: Nhóm 4
+    email: nhom4@example.com
+servers:
+  - url: http://localhost:8761
+    description: Eureka Server URL
+
+tags:
+  - name: eureka
+    description: Các API liên quan đến Eureka Service Discovery
+
+paths:
+  /:
+    get:
+      tags:
+        - eureka
+      summary: Trang Dashboard Eureka
+      description: Trả về trang Dashboard của Eureka Server
+      operationId: dashboard
+      responses:
+        '200':
+          description: Trang Dashboard thành công
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /eureka/apps:
+    get:
+      tags:
+        - eureka
+      summary: Danh sách tất cả ứng dụng đã đăng ký
+      description: Trả về danh sách tất cả microservices đã đăng ký với Eureka Server
+      operationId: getApps
+      responses:
+        '200':
+          description: Danh sách ứng dụng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applications'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Applications'
+
+  /eureka/apps/{appId}:
+    get:
+      tags:
+        - eureka
+      summary: Thông tin về một ứng dụng cụ thể
+      description: Trả về thông tin về một microservice đã đăng ký dựa trên ID
+      operationId: getAppById
+      parameters:
+        - name: appId
+          in: path
+          description: ID của ứng dụng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thông tin ứng dụng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          description: Không tìm thấy ứng dụng
+
+  /eureka/apps/{appId}/{instanceId}:
+    get:
+      tags:
+        - eureka
+      summary: Thông tin về một instance cụ thể
+      description: Trả về thông tin về một instance cụ thể của microservice đã đăng ký
+      operationId: getInstanceById
+      parameters:
+        - name: appId
+          in: path
+          description: ID của ứng dụng
+          required: true
+          schema:
+            type: string
+        - name: instanceId
+          in: path
+          description: ID của instance
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thông tin instance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instance'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Instance'
+        '404':
+          description: Không tìm thấy instance
+
+  /eureka/apps/{appId}/{instanceId}/status:
+    put:
+      tags:
+        - eureka
+      summary: Cập nhật trạng thái của instance
+      description: Cập nhật trạng thái của một instance cụ thể
+      operationId: updateInstanceStatus
+      parameters:
+        - name: appId
+          in: path
+          description: ID của ứng dụng
+          required: true
+          schema:
+            type: string
+        - name: instanceId
+          in: path
+          description: ID của instance
+          required: true
+          schema:
+            type: string
+        - name: value
+          in: query
+          description: Giá trị trạng thái mới (UP, DOWN, STARTING, OUT_OF_SERVICE, UNKNOWN)
+          required: true
+          schema:
+            type: string
+            enum: [UP, DOWN, STARTING, OUT_OF_SERVICE, UNKNOWN]
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+        '404':
+          description: Không tìm thấy instance
+        '500':
+          description: Lỗi Server
+
+components:
+  schemas:
+    Applications:
+      type: object
+      properties:
+        applications:
+          type: object
+          properties:
+            application:
+              type: array
+              items:
+                $ref: '#/components/schemas/Application'
+
+    Application:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "UC-SERVICE"
+        instance:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instance'
+
+    Instance:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          example: "uc-service:8000"
+        hostName:
+          type: string
+          example: "localhost"
+        app:
+          type: string
+          example: "UC-SERVICE"
+        ipAddr:
+          type: string
+          example: "192.168.1.100"
+        status:
+          type: string
+          enum: [UP, DOWN, STARTING, OUT_OF_SERVICE, UNKNOWN]
+          example: "UP"
+        port:
+          type: object
+          properties:
+            $:
+              type: integer
+              example: 8000
+            '@enabled':
+              type: boolean
+              example: true
+        securePort:
+          type: object
+          properties:
+            $:
+              type: integer
+              example: 443
+            '@enabled':
+              type: boolean
+              example: false
+        homePageUrl:
+          type: string
+          example: "http://localhost:8000/"
+        statusPageUrl:
+          type: string
+          example: "http://localhost:8000/actuator/info"
+        healthCheckUrl:
+          type: string
+          example: "http://localhost:8000/actuator/health"
+        vipAddress:
+          type: string
+          example: "uc-service"
+        lastUpdatedTimestamp:
+          type: integer
+          format: int64
+          example: 1652936461473
+        lastDirtyTimestamp:
+          type: integer
+          format: int64
+          example: 1652936461473
+        metadata:
+          type: object
+          additionalProperties:
+            type: string

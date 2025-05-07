@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: API Gateway
+  description: API Gateway cho hệ thống đặt xe
+  version: 1.0.0
+  contact:
+    name: Nhóm 4
+    email: nhom4@example.com
+servers:
+  - url: http://localhost:8800
+    description: API Gateway URL
+
+tags:
+  - name: gateway
+    description: Các API liên quan đến API Gateway
+  - name: users
+    description: UC Service APIs
+  - name: position
+    description: Position Service APIs
+  - name: intentions
+    description: Intention Service APIs
+  - name: order
+    description: Order Service APIs
+
+paths:
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: Lấy thông tin người dùng theo ID
+      description: Điều hướng đến UC Service - Trả về thông tin chi tiết của một người dùng dựa trên ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID của người dùng
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Thông tin người dùng thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Không tìm thấy người dùng
+        '500':
+          description: Lỗi Server
+
+  /api/position/update:
+    post:
+      tags:
+        - position
+      summary: Cập nhật vị trí tài xế
+      description: Điều hướng đến Position Service - Cập nhật vị trí hiện tại của tài xế trong hệ thống
+      operationId: updatePosition
+      parameters:
+        - name: driverId
+          in: query
+          description: ID của tài xế
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: longitude
+          in: query
+          description: Kinh độ
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: latitude
+          in: query
+          description: Vĩ độ
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Vị trí đã được cập nhật thành công
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+        '500':
+          description: Lỗi Server
+
+  /api/position/match:
+    get:
+      tags:
+        - position
+      summary: Tìm tài xế gần vị trí khách hàng
+      description: Điều hướng đến Position Service - Trả về danh sách tài xế gần vị trí được chỉ định
+      operationId: matchDrivers
+      parameters:
+        - name: longitude
+          in: query
+          description: Kinh độ
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: latitude
+          in: query
+          description: Vĩ độ
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Danh sách tài xế gần vị trí
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverStatus'
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+        '500':
+          description: Lỗi Server
+
+  /api/intentions/place:
+    post:
+      tags:
+        - intentions
+      summary: Tạo yêu cầu đặt xe mới
+      description: Điều hướng đến Intention Service - Tạo một yêu cầu đặt xe mới từ khách hàng
+      operationId: placeIntention
+      requestBody:
+        description: Thông tin yêu cầu đặt xe
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyIntention'
+        required: true
+      responses:
+        '200':
+          description: Yêu cầu đặt xe được tạo thành công
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+        '500':
+          description: Lỗi Server
+
+  /api/intentions/confirm:
+    post:
+      tags:
+        - intentions
+      summary: Xác nhận yêu cầu đặt xe
+      description: Điều hướng đến Intention Service - Tài xế xác nhận chấp nhận yêu cầu đặt xe
+      operationId: confirmIntention
+      parameters:
+        - name: driverId
+          in: query
+          description: ID của tài xế
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: intentionId
+          in: query
+          description: ID của yêu cầu đặt xe
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Kết quả xác nhận
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          description: Dữ liệu đầu vào không hợp lệ
+        '500':
+          description: Lỗi Server
+
+  /api/order/aboard:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái lên xe
+      description: Điều hướng đến Order Service - Cập nhật trạng thái đơn hàng khi khách hàng đã lên xe
+      operationId: aboard
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Không tìm thấy đơn hàng
+        '500':
+          description: Lỗi Server
+
+  /api/order/arrive:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái đến nơi
+      description: Điều hướng đến Order Service - Cập nhật trạng thái đơn hàng khi tài xế đã đến nơi
+      operationId: arrive
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Không tìm thấy đơn hàng
+        '500':
+          description: Lỗi Server
+
+  /api/order/paying:
+    post:
+      tags:
+        - order
+      summary: Cập nhật trạng thái thanh toán
+      description: Điều hướng đến Order Service - Cập nhật trạng thái đơn hàng khi khách hàng đã thanh toán
+      operationId: paying
+      parameters:
+        - name: orderId
+          in: query
+          description: ID của đơn hàng
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Không tìm thấy đơn hàng
+        '500':
+          description: Lỗi Server
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        userName:
+          type: string
+          example: "Nguyễn Văn A"
+        mobile:
+          type: string
+          example: "0987654321"
+        type:
+          type: string
+          enum: [Customer, Driver]
+          example: "Customer"
+        province:
+          type: string
+          example: "Hanoi"
+        city:
+          type: string
+          example: "Hanoi"
+        district:
+          type: string
+          example: "Cau Giay"
+        street:
+          type: string
+          example: "Tran Duy Hung"
+        originAddress:
+          type: string
+          example: "123 Tran Duy Hung, Cau Giay, Hanoi"
+
+    Driver:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 11
+        userName:
+          type: string
+          example: "Driver 1"
+        mobile:
+          type: string
+          example: "0912345671"
+        type:
+          type: string
+          example: "Driver"
+
+    DriverStatus:
+      type: object
+      properties:
+        dId:
+          type: integer
+          format: int32
+          example: 11
+        driver:
+          $ref: '#/components/schemas/Driver'
+        currentLongitude:
+          type: number
+          format: double
+          example: 105.8315
+        currentLatitude:
+          type: number
+          format: double
+          example: 21.0277
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE, BUSY]
+          example: "ONLINE"
+        updateTime:
+          type: string
+          format: date-time
+          example: "2024-05-20T10:30:45"
+
+    MyIntention:
+      type: object
+      required:
+        - userId
+        - startLongitude
+        - startLatitude
+        - destLongitude
+        - destLatitude
+      properties:
+        userId:
+          type: integer
+          format: int32
+          example: 1
+        startLongitude:
+          type: number
+          format: double
+          example: 105.8521
+        startLatitude:
+          type: number
+          format: double
+          example: 21.0245
+        destLongitude:
+          type: number
+          format: double
+          example: 105.8315
+        destLatitude:
+          type: number
+          format: double
+          example: 21.0277
