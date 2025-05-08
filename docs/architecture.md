@@ -31,7 +31,7 @@ Hệ thống bao gồm các microservices nghiệp vụ và các thành phần h
     * **Trách nhiệm**: Quản lý thông tin về lịch sử vị trí của tài xế (`Position` entity) và thông tin trạng thái của tài xế (`DriverStatus` entity). Cung cấp API (`PositionController`) để FE hoặc các Service khác có thể truy vấn thông tin vị trí của tài xế. 
     * **Logic chính**:
         * `PositionService`: 
-            * Thực hiện logic `updatePosition` với 3 tham số đầu vào là `DriverId`, `longitude` và `latitude` để cập nhật vị trí của tài xế vào database (`t_position` table), đồng thời cập nhật trạng thái mới nhất đó vào database (`t_driver_status` table) và cập nhật tọa độ vị trí cùng 1 key `Driver` vào Redis, sau đó trả về `driverStatus` vừa cập nhật đó.
+            * Thực hiện logic `updatePosition` với 3 tham số đầu vào là `DriverId`, `longitude` và `latitude` để cập nhật vị trí của tài xế vào database (`t_position` table), đồng thời cập nhật trạng thái mới nhất đó vào database (`t_driver_status` table) và cập nhật tọa độ vị trí, `driverId` cùng 1 key `Driver` vào Redis, sau đó trả về `driverStatus` vừa cập nhật đó.
             * Thực hiện logic `matchDriver` với 2 tham số đầu vào là `longitude` và `latitude` để tìm kiếm tài xế đang ở chung quanh tọa độ nhận được, lọc chỉ để lại các tài xế có trạng thái `ONLINE` và gửi danh sách tài xế đó.
         * Sử dụng `Status` enum để theo dõi trạng thái tài xế (ONLINE/OFFLINE/BUSY).
     * **Database**: `nhom4_position` (MySQL) - Chứa bảng `t_position` và `t_driver_status`.
@@ -101,7 +101,7 @@ Luồng dữ liệu chính của use case đặt xe được thực hiện như 
 
 0.  **Cập nhật vị trí tài xế**:
     * Request `POST /api/position/update` (với RequestParam `driverId`, `longitude`, `latitude`) đến Gateway -> `PositionService`.
-    * `PositionService.updatePosition`: Lưu `Position` và cập nhật `DriverStatus` vào database (`nhom4_position`), sau đó lưu tọa độ cùng key là **Driver** `Redis`.
+    * `PositionService.updatePosition`: Lưu `Position` và cập nhật `DriverStatus` vào database (`nhom4_position`), sau đó lưu tọa độ, `driverId` cùng key là **Driver** `Redis`.
     * Nếu chưa có `DriverStatus` trong database từ trước sẽ gọi Request `GET UC-SERVICE/users/` cùng với `id` của Driver để lấy `Driver`.
 
 1.  **Tạo yêu cầu đặt xe**:
