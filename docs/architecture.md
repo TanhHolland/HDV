@@ -53,8 +53,8 @@ Hệ thống bao gồm các microservices nghiệp vụ và các thành phần h
             * Thực hiện logic `receiveMessage` để nhận dữ liệu từ `IntentionService` và gọi tới `createOrder` để khởi tạo đơn đặt xe.
         * `OrderService`: 
             * Thực hiện logic `createOrder` để tìm kiếm thông tin khách hàng và tài xế thông qua gọi API tới `UC Service` và khởi tạo thông tin đơn đặt xe vào database (`t_order` table) và trả về thông tin đơn đặt xe đã tạo.
-            * Thực hiện logic `aboard` để cập nhật trạng thái của đơn đặt xe thành `aboard` (Đã đến đón khách) và lưu lại vào database.
-            * Thực hiện logic `arrive` để cập nhật trạng thái của đơn đặt xe thành `unpay` (Đã đến điểm trả khách) và lưu lại vào database.
+            * Thực hiện logic `aboard` để cập nhật trạng thái của đơn đặt xe thành `WAITING_ARRIVE` (Đã đến đón khách) và lưu lại vào database.
+            * Thực hiện logic `arrive` để cập nhật trạng thái của đơn đặt xe thành `UNPAY` (Đã đến điểm trả khách) và lưu lại vào database.
             * Thực hiện logic `cancel` để hủy đơn đặt xe từ phía khách hàng trong vòng 3 phút sau khi có tài xế xác nhận đón, đồng thời cập nhật trạng thái của đơn đặt xe thành `canceled` (Đã hủy) và lưu lại vào database.
         * Sử dụng `FlowState` enum để cập nhật trạng thái đơn đặt xe.
     * **Database**: `nhom4_order` (MySQL) - Chứa bảng `t_order`.
@@ -126,11 +126,11 @@ Luồng dữ liệu chính của use case đặt xe được thực hiện như 
     * `OrderService.createOrder`: Khởi tạo đơn đặt xe của khách hàng và lưu vào database (`t_order` table) với status = `WAITING_ABOARD`.
 
 6. **Khi tài xế đến vị trí đón khách**:
-    * FE gửi request `POST /api/order/aboard` (chứa `driverId`, `orderId`) đến Gateway -> `OrderService`.
+    * FE gửi request `POST /api/order/aboard` (chứa `orderId`) đến Gateway -> `OrderService`.
     * `OrderService.aboard`: Cập nhật lại đơn đặt xe của khách hàng vào database với state = `WAITING_ARRIVE`.
 
 7. **Khi tài xế đến vị trí trả khách**:
-    * FE gửi request `POST /api/order/arrive` (chứa `driverId`, `orderId`) đến Gateway -> `OrderService`.
+    * FE gửi request `POST /api/order/arrive` (chứa `orderId`) đến Gateway -> `OrderService`.
     * `OrderService.arrive`: Cập nhật lại đơn đặt xe của khách hàng vào database với state = `UNPAY`.
 
 **Luồng ngoại lệ (Exception Path):**
@@ -143,7 +143,7 @@ Luồng dữ liệu chính của use case đặt xe được thực hiện như 
     * **Intention Service** sau khi nhận được danh sách tài xế là `null` từ **Position Service** sẽ cập nhật lại `Intention` với status = `Failed` và trả về `false`.
 
 3. **Khách hàng hủy chuyến**:
-    * FE gửi request `POST /api/order/cancel` (chứa `driverId`, `orderId`) đến Gateway -> `OrderService`.
+    * FE gửi request `POST /api/order/cancel` (chứa `orderId`) đến Gateway -> `OrderService`.
     * `OrderService.cancel`: Cập nhật lại đơn đặt xe của khách hàng vào database với state = `CANCELED`.
 
 
