@@ -135,7 +135,7 @@ Luồng dữ liệu chính của use case đặt xe được thực hiện như 
 
 **Luồng ngoại lệ (Exception Path):**
 
-1. **Tọa độ điền vào sai**:
+1. **Tọa độ đầu vào sai**:
     * Request `POST /api/position/update` (với RequestParam `driverId`, `longitude`, `latitude`) hoặc `POST /api/position/match` (chứa `longitude`, `latitude`) có (`longitude` > 180 hoặc < -180) hoặc (`latitude` > 90 hoặc < -90).
     * **Position Service** sẽ trả về message `Tọa độ không hợp lệ`.
 
