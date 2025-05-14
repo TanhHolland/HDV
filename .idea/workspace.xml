@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="16e5f317-e086-4544-a618-1286f845db81" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/README2.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/eureka.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/gateway.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/intention-service.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/order-service.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/position-service.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/api-specs/uc-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/analysis-and-design.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/analysis-and-design.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/architecture.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/architecture.md" afterDir="false" />
-    </list>
+    <list default="true" id="16e5f317-e086-4544-a618-1286f845db81" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,9 +29,10 @@
   "keyToString": {
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Quan",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Ky2nam4/PTPMHDV/mid-project-103547008",
+    "last_opened_file_path": "D:/4-HK2/Kien truc thiet ke phan mem/Prj/BTL/backend-othello",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -77,8 +67,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
-        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
       </set>
     </attachedChunks>
   </component>
@@ -93,6 +83,7 @@
       <workItem from="1746511942669" duration="462000" />
       <workItem from="1746512497279" duration="1175000" />
       <workItem from="1746592157163" duration="456000" />
+      <workItem from="1746727258178" duration="51000" />
     </task>
     <servers />
   </component>
