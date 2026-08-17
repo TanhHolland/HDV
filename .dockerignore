@@ -1,0 +1,11 @@
+.git
+.gradle
+**/build
+**/target
+**/.idea
+**/.gradle
+eureka
+gateway
+docs
+_gw
+*.md

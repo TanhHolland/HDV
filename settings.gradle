@@ -1,0 +1,8 @@
+rootProject.name = 'hdv'
+
+def modules = ['nhom4-user', 'nhom4-intention', 'nhom4-order', 'nhom4-position']
+modules.each { name ->
+    if (file(name).exists()) {
+        include name
+    }
+}

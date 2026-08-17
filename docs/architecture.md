@@ -78,7 +78,7 @@ Hệ thống bao gồm các microservices nghiệp vụ và các thành phần h
     * **Cấu hình**: Script `init-db.sql` tạo các database riêng. Các service kết nối tới database của mình thông qua cấu hình trong `application.yaml` hoặc `application.properties`.
 
 9. **docker**:
-    * **Trách nhiệm**: Công cụ container hóa, đóng gói từng microservice và thành phần hạ tầng (Redis, MySQL, Eureka, Gateway) thành các container độc lập. `docker-compose.yml` được cung cấp để khởi tạo môi trường hạ tầng cơ bản (Redis, MySQL). Các service có `Dockerfile` riêng (ví dụ: `gateway/Dockerfile`, `services/order/Dockerfile`) để build image.
+    * **Trách nhiệm**: Công cụ container hóa, đóng gói từng microservice và thành phần hạ tầng (Redis, MySQL, Eureka, Gateway) thành các container độc lập. `docker-compose.yml` được cung cấp để khởi tạo môi trường hạ tầng cơ bản (Redis, MySQL). Các service Gradle dùng `Dockerfile` ở root (build arg `SERVICE_NAME`); `eureka` và `gateway` vẫn có `Dockerfile` riêng.
 
 ## Giao tiếp
 Giao tiếp trong hệ thống diễn ra qua các kênh chính:
@@ -305,3 +305,11 @@ sequenceDiagram
 - **Bộ đệm**: Nếu một service consumer (ví dụ: order-service) bị quá tải hoặc gặp lỗi tạm thời, các message yêu cầu vẫn được lưu trữ an toàn trong queue. Khi service đó hoạt động trở lại hoặc có instance khác xử lý, nó có thể tiếp tục xử lý các message tồn đọng.
 ### 4. Service Discovery (Eureka): 
 - Nếu một instance của microservice nào đó bị lỗi, Eureka Server sẽ phát hiện (thông qua heartbeat) và loại bỏ nó khỏi danh sách đăng ký. API Gateway và các service khác khi truy vấn Eureka sẽ chỉ nhận được địa chỉ của các instance khỏe mạnh, giúp hệ thống định tuyến request vòng qua các instance lỗi và tiếp tục hoạt động.
+
+## Tài liệu thiết kế chi tiết
+
+| Tài liệu | Nội dung |
+|---|---|
+| [`thiet_ke_sequence.md`](./thiet_ke_sequence.md) | Luồng đặt xe, match tài xế, RabbitMQ, lifecycle đơn |
+| [`thiet_ke_database.md`](./thiet_ke_database.md) | Schema MySQL database-per-service + Redis keys |
+| [`thiet_ke_cauhinh.md`](./thiet_ke_cauhinh.md) | Cấu hình service, Docker Compose, cổng & chạy local |

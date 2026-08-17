@@ -3,41 +3,22 @@
 echo "🏗️ Building and starting nhom4 microservices system..."
 echo "======================================================"
 
-# Create necessary directories
-mkdir -p scripts
-mkdir -p services/{uc,position,order}/target
-mkdir -p services/intention-service/target
-mkdir -p eureka/eureka/target
-mkdir -p gateway/target
+echo "Building Gradle services (nhom4-user, intention, order, position)..."
+./gradlew bootJar -x test
 
-# Build all services
 echo "Building Eureka Server..."
-cd eureka/eureka && mvn clean package -DskipTests && cd ../..
-
-echo "Building UC Service..."
-cd services/uc && mvn clean package -DskipTests && cd ../..
-
-echo "Building Position Service..."
-cd services/position && mvn clean package -DskipTests && cd ../..
-
-echo "Building Intention Service..."
-cd services/intention-service && mvn clean package -DskipTests && cd ../..
-
-echo "Building Order Service..."
-cd services/order && mvn clean package -DskipTests && cd ../..
+cd eureka && mvn clean package -DskipTests && cd ..
 
 echo "Building Gateway..."
 cd gateway && mvn clean package -DskipTests && cd ..
 
-# Start all services
 echo "Starting all services with Docker Compose..."
-docker-compose up --build -d
+docker compose up --build -d
 
-# Show service status
 echo ""
 echo "Service Status:"
 echo "---------------"
-docker-compose ps
+docker compose ps
 
 echo ""
 echo "✅ All services are starting up!"
@@ -49,4 +30,4 @@ echo "- API Gateway: http://localhost:8800"
 echo "- MySQL: localhost:3306"
 echo "- Redis: localhost:6379"
 echo ""
-echo "View logs with: docker-compose logs -f [service-name]"
+echo "View logs with: docker compose logs -f [service-name]"

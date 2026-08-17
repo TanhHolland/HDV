@@ -70,55 +70,6 @@ services:
       restart_policy:
         condition: on-failure
 
-  # Thêm Prometheus
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: nhom4-prometheus
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - booking-network
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-    deploy:
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 512M
-
-  # Thêm Grafana
-  grafana:
-    image: grafana/grafana:latest
-    container_name: nhom4-grafana
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    ports:
-      - "3000:3000"
-    networks:
-      - booking-network
-    depends_on:
-      - prometheus
-    deploy:
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 512M
-
   eureka:
     environment:
       - SERVER_PORT=8761
@@ -151,13 +102,15 @@ services:
   # UC Service với 2 instance
   uc-service-1:
     build:
-      context: ./services/uc
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-user
+        SERVICE_PORT: "8000"
     container_name: uc-service-1
     depends_on:
       - mysql
       - eureka
-      - prometheus
     ports:
       - "8000:8000"
     environment:
@@ -180,13 +133,15 @@ services:
 
   uc-service-2:
     build:
-      context: ./services/uc
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-user
+        SERVICE_PORT: "8000"
     container_name: uc-service-2
     depends_on:
       - mysql
       - eureka
-      - prometheus
     ports:
       - "8011:8000"
     environment:
@@ -210,15 +165,17 @@ services:
   # Position Service với 2 instance
   position-service-1:
     build:
-      context: ./services/position
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-position
+        SERVICE_PORT: "8003"
     container_name: position-service-1
     depends_on:
       - mysql
       - redis
       - eureka
       - uc-service-1
-      - prometheus
     ports:
       - "8003:8003"
     environment:
@@ -243,15 +200,17 @@ services:
 
   position-service-2:
     build:
-      context: ./services/position
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-position
+        SERVICE_PORT: "8003"
     container_name: position-service-2
     depends_on:
       - mysql
       - redis
       - eureka
       - uc-service-1
-      - prometheus
     ports:
       - "8012:8003"
     environment:
@@ -277,15 +236,17 @@ services:
   # Intention Service với 2 instance
   intention-service-1:
     build:
-      context: ./services/intention-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-intention
+        SERVICE_PORT: "8001"
     container_name: intention-service-1
     depends_on:
       - mysql
       - redis
       - rabbitmq
       - eureka
-      - prometheus
     ports:
       - "8001:8001"
     environment:
@@ -311,15 +272,17 @@ services:
 
   intention-service-2:
     build:
-      context: ./services/intention-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-intention
+        SERVICE_PORT: "8001"
     container_name: intention-service-2
     depends_on:
       - mysql
       - redis
       - rabbitmq
       - eureka
-      - prometheus
     ports:
       - "8013:8001"
     environment:
@@ -346,14 +309,16 @@ services:
   # Order Service với 2 instance
   order-service-1:
     build:
-      context: ./services/order
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-order
+        SERVICE_PORT: "8002"
     container_name: order-service-1
     depends_on:
       - mysql
       - rabbitmq
       - eureka
-      - prometheus
     ports:
       - "8002:8002"
     environment:
@@ -377,14 +342,16 @@ services:
 
   order-service-2:
     build:
-      context: ./services/order
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: nhom4-order
+        SERVICE_PORT: "8002"
     container_name: order-service-2
     depends_on:
       - mysql
       - rabbitmq
       - eureka
-      - prometheus
     ports:
       - "8014:8002"
     environment:
@@ -418,7 +385,6 @@ services:
       - position-service-1
       - intention-service-1
       - order-service-1
-      - prometheus
     ports:
       - "8800:8800"
     environment:
@@ -447,7 +413,6 @@ services:
       - position-service-1
       - intention-service-1
       - order-service-1
-      - prometheus
     ports:
       - "8801:8800"
     environment:
@@ -473,5 +438,3 @@ volumes:
   mysql-data:
   redis-data:
   rabbitmq-data:
-  prometheus-data:
-  grafana-data:
